@@ -30,6 +30,10 @@ public class drive_control {
 
 	public static float pi = (float) Math.PI;
 
+	// Sensor ports
+	public EV3GyroSensor gyro = new EV3GyroSensor(SensorPort.S1);
+
+	// Motor ports
 
 	public static void set_dims(float left_diameter, float right_diameter, float wheel_base, float wheel_width){
 		/**
@@ -104,4 +108,20 @@ public class drive_control {
 		   Motor.A.setSpeed(a);
 		   Motor.B.setSpeed(b);
 	}
+
+	public static void gyro_cal() {
+		gyro.getAngleMode(); 		// Set to purely angle mode
+		gyro.reset(); 					// Reset the gyro
+		// Wait for gyro to finish calibrating
+		// will output NaN until calibration complete
+		while (gyro.readvalue() >= 0 && gyro.readvalue() <0){
+			Delay.delayms(40);
+		}
+	}
+
+	public static float theta() {
+		return float(gyro.readvalue())
+	}
+
+
 }
