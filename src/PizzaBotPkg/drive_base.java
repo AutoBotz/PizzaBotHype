@@ -31,8 +31,15 @@ public class drive_base {
 
 	public static float pi = (float) Math.PI;
 
+<<<<<<< HEAD:src/PizzaBotPkg/drive_base.java
   public  float X = 0;
   public  float Y = 0;
+=======
+	// Sensor ports
+	public EV3GyroSensor gyro = new EV3GyroSensor(SensorPort.S1);
+
+	// Motor ports
+>>>>>>> origin/master:src/PizzaBotPkg/drive_control.java
 
 
 	public static void set_dims(float left_diameter, float right_diameter, float wheel_base){
@@ -117,4 +124,20 @@ public class drive_base {
 		   Motor.A.setSpeed(a);
 		   Motor.B.setSpeed(b);
 	}
+
+	public static void gyro_cal() {
+		gyro.getAngleMode(); 		// Set to purely angle mode
+		gyro.reset(); 					// Reset the gyro
+		// Wait for gyro to finish calibrating
+		// will output NaN until calibration complete
+		while (gyro.readvalue() >= 0 && gyro.readvalue() <0){
+			Delay.delayms(40);
+		}
+	}
+
+	public static float theta() {
+		return float(gyro.readvalue())
+	}
+
+
 }
