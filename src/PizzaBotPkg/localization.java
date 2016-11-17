@@ -23,5 +23,4 @@ public class localization {
 		// TODO Auto-generated method stub
 
 	}
-
 }

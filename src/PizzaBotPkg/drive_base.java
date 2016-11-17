@@ -6,6 +6,7 @@ import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.hardware.sensor.EV3GyroSensor;
 import lejos.utility.Delay;
+import Math;
 
 //import statements
 
@@ -15,7 +16,7 @@ import lejos.utility.Delay;
 * @since       0.0
 */
 
-public class drive_control {
+public class drive_base {
 	public static float Lwheel_amt_per_cm = Float.NaN;
 	public static float Lwheel_amt_full_rotation = Float.NaN;
 	public static float Lwheel_amt_pivot_turn = Float.NaN;
@@ -30,8 +31,11 @@ public class drive_control {
 
 	public static float pi = (float) Math.PI;
 
+  public  float X = 0;
+  public  float Y = 0;
 
-	public static void set_dims(float left_diameter, float right_diameter, float wheel_base, float wheel_width){
+
+	public static void set_dims(float left_diameter, float right_diameter, float wheel_base){
 		/**
 		 * This function accept the physical dimensions of the robot, and computes the corrections factors
 		 * for functions such as rotation, turn and forward driving to allow user to input reasonable numbers
@@ -61,6 +65,15 @@ public class drive_control {
 
 
 	public static void forward(int distance){
+
+     angle = theta();
+
+     x = distance*Math.cos(angle);
+     y = distance*Math.sin(angle);
+
+     X += x
+     Y += y
+
 		 double A_ang = Motor.A.getTachoCount();
 		 double B_ang = Motor.B.getTachoCount();
 
