@@ -31,15 +31,12 @@ public class drive_base {
 
 	public static float pi = (float) Math.PI;
 
-<<<<<<< HEAD:src/PizzaBotPkg/drive_base.java
+
   public  float X = 0;
   public  float Y = 0;
-=======
+
 	// Sensor ports
 	public EV3GyroSensor gyro = new EV3GyroSensor(SensorPort.S1);
-
-	// Motor ports
->>>>>>> origin/master:src/PizzaBotPkg/drive_control.java
 
 
 	public static void set_dims(float left_diameter, float right_diameter, float wheel_base){
@@ -102,8 +99,20 @@ public class drive_base {
 
 		 Motor.A.rotateTo(A_ang, true);
 		 Motor.B.rotateTo(B_ang);
-
 	}
+	public static void spotTurn_gyro(int angturn){
+			 int A_ang = Motor.A.getTachoCount();
+			 int B_ang = Motor.B.getTachoCount();
+			 int turnAmt = angturn ;
+	
+
+			 A_ang = A_ang - turnAmt;
+			 B_ang = B_ang + turnAmt;
+
+			 Motor.A.rotateTo(A_ang, true);
+			 Motor.B.rotateTo(B_ang);
+		}
+
 	static void turn(int nominator, int denominator, int Speed, int direction) {
 		  if (direction > 0)
 			  Motor.A.setSpeed(denominator*Speed);
