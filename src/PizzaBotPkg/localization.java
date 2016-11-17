@@ -8,6 +8,15 @@ import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.hardware.sensor.EV3GyroSensor; 
 import lejos.utility.Delay;
 
+//import statements
+
+/**
+* @author      Andrej Janda, Ethan Waldie, Michael Ding
+* @version     0.1
+* @since       0.0
+*/
+
+
 public class localization {
 
 	public static void main(String[] args) {
