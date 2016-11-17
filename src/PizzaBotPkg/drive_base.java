@@ -102,18 +102,22 @@ public class drive_base {
 		 Motor.B.rotateTo(B_ang);
 	}
 	public static void spotTurn_gyro(int angturn){
-			 int A_ang = Motor.A.getTachoCount();
-			 int B_ang = Motor.B.getTachoCount();
-			 int turnAmt = angturn ;
+			K = 1;
 
+			while (abs(theta() - angturn) > 5) {
+				speed = K*(theta() - angturn);
+				set_speed(speed, speed);
+				if (angturn > 0) {
+					Motor.A.forward();
+					Motor.B.backward();
+				} else {
+					Motor.A.backward();
+					Motor.B.forward();
+				}
+			}
 
-			 A_ang = A_ang - turnAmt;
-			 B_ang = B_ang + turnAmt;
-
-			 Motor.A.rotateTo(A_ang, true);
-			 Motor.B.rotateTo(B_ang);
+			stop();
 		}
-
 	static void turn(int nominator, int denominator, int Speed, int direction) {
 		  if (direction > 0)
 			  Motor.A.setSpeed(denominator*Speed);
