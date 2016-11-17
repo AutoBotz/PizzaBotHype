@@ -7,6 +7,7 @@ import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.hardware.sensor.EV3GyroSensor;
 import lejos.utility.Delay;
+import Math;
 
 //import statements
 
@@ -19,22 +20,24 @@ import lejos.utility.Delay;
 
 public class get_To_Oval {
 
-	public static void main(String[] args) {
+	public static void test() {
 
 		drive = new drive_base;
 		drive.set_dims(5.5, 5.5, 9.2);
+    drive.
 
 		System.out.println(drive.x());
 		System.out.println(drive.y());
 		System.out.println(drive.theta());
 
 
-
-
 	}
 
 
 
+  public static void follow_line() {
+    break;
+  }
 
 
 }

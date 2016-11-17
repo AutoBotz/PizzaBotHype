@@ -63,12 +63,12 @@ public class drive_base {
 
 		Lwheel_amt_full_rotation = (wheel_base + wheel_width)  * pi
 
-
-
 	}
 
 
-	public static void forward(int distance){
+	public static void forward(int distance, int speed){
+
+		set_speed(speed, speed);
 
      angle = theta();
 
@@ -88,7 +88,8 @@ public class drive_base {
 		 Motor.B.rotateTo((int)(B_ang));
 	}
 
-	public static void spotTurn(int angturn){
+	public static void spotTurn(int angturn, int speed){
+		 set_speed(speed, speed);
 		 int A_ang = Motor.A.getTachoCount();
 		 int B_ang = Motor.B.getTachoCount();
 		 int turnAmt = angturn ;
@@ -104,7 +105,7 @@ public class drive_base {
 			 int A_ang = Motor.A.getTachoCount();
 			 int B_ang = Motor.B.getTachoCount();
 			 int turnAmt = angturn ;
-	
+
 
 			 A_ang = A_ang - turnAmt;
 			 B_ang = B_ang + turnAmt;
@@ -132,6 +133,13 @@ public class drive_base {
 	public static void set_speed(int a, int b) {
 		   Motor.A.setSpeed(a);
 		   Motor.B.setSpeed(b);
+			 Motor.A.forward();
+			 Motor.B.forward();
+	}
+
+	public static void stop() {
+			Motor.A.flt();
+			Motor.B.flt();
 	}
 
 	public static void gyro_cal() {
