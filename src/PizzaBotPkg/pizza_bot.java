@@ -20,6 +20,7 @@ public class pizza_bot {
 
 	public static void main(String[] args) {
 		robot = new drive_control();
+		robot.set_dims(5.5, 5.5, 9.2);
 		robot.gyro_cal();	// calibrate gyro
 		System.out.println(robot.theta());
 

@@ -20,24 +20,4 @@ import Math;
 
 public class get_To_Oval {
 
-	public static void test() {
-
-		drive = new drive_base;
-		drive.set_dims(5.5, 5.5, 9.2);
-    drive.
-
-		System.out.println(drive.x());
-		System.out.println(drive.y());
-		System.out.println(drive.theta());
-
-
-	}
-
-
-
-  public static void follow_line() {
-    break;
-  }
-
-
 }

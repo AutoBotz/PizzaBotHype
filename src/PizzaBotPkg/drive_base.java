@@ -32,11 +32,11 @@ public class drive_base {
 	public static float pi = (float) Math.PI;
 
 
-  public  float X = 0;
-  public  float Y = 0;
+	  public  float X = 0;
+	  public  float Y = 0;
 
 	// Sensor ports
-	public EV3GyroSensor gyro = new EV3GyroSensor(SensorPort.S1);
+	public static EV3GyroSensor gyro = new EV3GyroSensor(SensorPort.S1);
 
 
 	public static void set_dims(float left_diameter, float right_diameter, float wheel_base){
@@ -58,10 +58,6 @@ public class drive_base {
 		Lwheel_amt_per_cm = 360/Lwheel_distance_full_rev;
 		Rwheel_amt_per_cm = 360/Rwheel_distance_full_rev;
 
-		Lwheel_center = (wheel_base/2) + (wheel_width/2);
-		Rwheel_center = (wheel_base/2) + (wheel_width/2);
-
-		Lwheel_amt_full_rotation = (wheel_base + wheel_width)  * pi
 
 	}
 
@@ -70,13 +66,13 @@ public class drive_base {
 
 		set_speed(speed, speed);
 
-     angle = theta();
+     double angle = (double)theta();
 
-     x = distance*Math.cos(angle);
-     y = distance*Math.sin(angle);
+     double x = distance*Math.cos(angle);
+     double y = distance*Math.sin(angle);
 
-     X += x
-     Y += y
+     X += x;
+     Y += y;
 
 		 double A_ang = Motor.A.getTachoCount();
 		 double B_ang = Motor.B.getTachoCount();
@@ -102,11 +98,12 @@ public class drive_base {
 		 Motor.B.rotateTo(B_ang);
 	}
 	public static void spotTurn_gyro(int angturn){
-			K = 1;
+			int K = 1;
 
-			while (abs(theta() - angturn) > 5) {
-				speed = K*(theta() - angturn);
-				set_speed(speed, speed);
+			while (Math.abs(theta() - angturn) > 5) {
+				float speed = K*(theta() - angturn);
+
+				set_speed((int)speed, (int)speed);
 				if (angturn > 0) {
 					Motor.A.forward();
 					Motor.B.backward();
@@ -151,13 +148,13 @@ public class drive_base {
 		gyro.reset(); 					// Reset the gyro
 		// Wait for gyro to finish calibrating
 		// will output NaN until calibration complete
-		while (gyro.readvalue() >= 0 && gyro.readvalue() <0){
-			Delay.delayms(40);
+		while (gyro.readValue() >= 0 && gyro.readValue() <0){
+			Delay.msDelay(40);
 		}
 	}
 
 	public static float theta() {
-		return float(gyro.readvalue())
+		return (float)gyro.fetchValue();
 	}
 
 
