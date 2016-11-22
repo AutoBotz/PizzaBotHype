@@ -16,30 +16,30 @@ import lejos.utility.Delay;
 */
 
 public class drive_control {
-	public static float Lwheel_amt_per_cm = Float.NaN;
-	public static float Lwheel_amt_full_rotation = Float.NaN;
-	public static float Lwheel_amt_pivot_turn = Float.NaN;
-	public static float Lwheel_distance_full_rev = Float.NaN;
-	public static float Lwheel_center = Float.NaN;
+	public float Lwheel_amt_per_cm = Float.NaN;
+	public float Lwheel_amt_full_rotation = Float.NaN;
+	public float Lwheel_amt_pivot_turn = Float.NaN;
+	public float Lwheel_distance_full_rev = Float.NaN;
+	public float Lwheel_center = Float.NaN;
 
-	public static float Rwheel_amt_per_cm = Float.NaN;
-	public static float Rwheel_amt_full_rotation = Float.NaN;
-	public static float Rwheel_amt_pivot_turn = Float.NaN;
-	public static float Rwheel_distance_full_rev = Float.NaN;
-	public static float Rwheel_center = Float.NaN;
+	public float Rwheel_amt_per_cm = Float.NaN;
+	public float Rwheel_amt_full_rotation = Float.NaN;
+	public float Rwheel_amt_pivot_turn = Float.NaN;
+	public float Rwheel_distance_full_rev = Float.NaN;
+	public float Rwheel_center = Float.NaN;
 
 	public static float pi = (float) Math.PI;
 
 
-	  public static float X = 0;
-	  public static float Y = 0;
+	  public float X = 0;
+	  public float Y = 0;
 
-	// Sensor ports
+	// Programmatics
 	public static EV3GyroSensor gyro = new EV3GyroSensor(SensorPort.S1);
-	public static int gyro_sample_size = gyro.sampleSize();
-	public static float[] gyro_sample = new float[gyro_sample_size];
+	public int gyro_sample_size = gyro.sampleSize();
+	public float[] gyro_sample = new float[gyro_sample_size];
 
-	public static void set_dims(float left_diameter, float right_diameter, float wheel_base){
+	public void set_dims(float left_diameter, float right_diameter, float wheel_base){
 		/**
 		 * This function accept the physical dimensions of the robot, and computes the corrections factors
 		 * for functions such as rotation, turn and forward driving to allow user to input reasonable numbers
@@ -62,7 +62,7 @@ public class drive_control {
 	}
 
 
-	public static void forward(int distance, int speed){
+	public void forward(int distance, int speed){
 
 		set_speed(speed, speed);
 
@@ -84,7 +84,7 @@ public class drive_control {
 		 Motor.B.rotateTo((int)(B_ang));
 	}
 
-	public static void spotTurn(int angturn, int speed){
+	public void spotTurn(int angturn, int speed){
 		 set_speed(speed, speed);
 		 int A_ang = Motor.A.getTachoCount();
 		 int B_ang = Motor.B.getTachoCount();
@@ -98,7 +98,7 @@ public class drive_control {
 		 Motor.B.rotateTo(B_ang);
 	}
 	
-	public static void spotTurn_gyro(int angturn){
+	public void spotTurn_gyro(int angturn){
 			int K = 1;
 
 			while (Math.abs(theta() - angturn) > 5) {
@@ -133,19 +133,19 @@ public class drive_control {
 	 }
 
 
-	public static void set_speed(int a, int b) {
+	public void set_speed(int a, int b) {
 		   Motor.A.setSpeed(a);
 		   Motor.B.setSpeed(b);
 			 Motor.A.forward();
 			 Motor.B.forward();
 	}
 
-	public static void flt() {
+	public void flt() {
 			Motor.A.flt(true);
 			Motor.B.flt();
 	}
 
-	public static void stop() {
+	public void stop() {
 			Motor.A.stop(true);
 			Motor.B.stop();
 	}
@@ -155,11 +155,11 @@ public class drive_control {
 		gyro_sample_size = gyro.sampleSize(); //Modify gyro sample buffer to account of change of mode
 		gyro_sample = new float[gyro_sample_size];
 		
-		gyro_cal(); // Call gyro calibration to recalibrate gyro
+		this.gyro_cal(); // Call gyro calibration to recalibrate gyro
 	}
 	
-	public static void gyro_cal() {
-		stop(); // Full stop, robot must be stationary for gyro calibration
+	public void gyro_cal() {
+		this.stop(); // Full stop, robot must be stationary for gyro calibration
 		System.out.println("Hold for gyro calibration");
 		Delay.msDelay(1000);
 		gyro.reset(); 					// Reset the gyro
@@ -173,7 +173,7 @@ public class drive_control {
 		System.out.println("Gyro calibration complete");
 	}
 
-	public static float theta() {
+	public float theta() {
 		gyro.fetchSample(gyro_sample,0);
 		return gyro_sample[0];
 	}

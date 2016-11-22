@@ -19,7 +19,13 @@ import lejos.utility.Delay;
 public class pizza_bot {
 
 	public static void main(String[] args) {
+		
 		drive_control robot = new drive_control();
+		user_interface UI = new user_interface();
+		
+		UI.clear_screen();
+		
+		
 		robot.set_dims((float)5.5, (float)5.5, (float)9.2);
 		robot.gyro_init();	// Initialize gyro
 		

@@ -18,5 +18,15 @@ import lejos.utility.Delay;
 
 
 public class user_interface {
+	public void clear_screen(){
+		LCD.clear();
+	}
+	
+	public void println(String x){
+		System.out.println(x);
+	}
 
+	public void print(String x){
+		System.out.print(x);
+	}
 }
