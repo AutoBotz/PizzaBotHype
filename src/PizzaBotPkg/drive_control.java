@@ -6,7 +6,6 @@ import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.hardware.sensor.EV3GyroSensor;
 import lejos.utility.Delay;
-import Math;
 
 //import statements
 
@@ -16,7 +15,7 @@ import Math;
 * @since       0.0
 */
 
-public class drive_base {
+public class drive_control {
 	public static float Lwheel_amt_per_cm = Float.NaN;
 	public static float Lwheel_amt_full_rotation = Float.NaN;
 	public static float Lwheel_amt_pivot_turn = Float.NaN;
@@ -32,12 +31,13 @@ public class drive_base {
 	public static float pi = (float) Math.PI;
 
 
-	  public  float X = 0;
-	  public  float Y = 0;
+	  public static float X = 0;
+	  public static float Y = 0;
 
 	// Sensor ports
 	public static EV3GyroSensor gyro = new EV3GyroSensor(SensorPort.S1);
-
+	public static int gyro_sample_size = gyro.sampleSize();
+	public static float[] gyro_sample = new float[gyro_sample_size];
 
 	public static void set_dims(float left_diameter, float right_diameter, float wheel_base){
 		/**
@@ -97,6 +97,7 @@ public class drive_base {
 		 Motor.A.rotateTo(A_ang, true);
 		 Motor.B.rotateTo(B_ang);
 	}
+	
 	public static void spotTurn_gyro(int angturn){
 			int K = 1;
 
@@ -115,6 +116,7 @@ public class drive_base {
 
 			stop();
 		}
+	
 	static void turn(int nominator, int denominator, int Speed, int direction) {
 		  if (direction > 0)
 			  Motor.A.setSpeed(denominator*Speed);
@@ -138,23 +140,42 @@ public class drive_base {
 			 Motor.B.forward();
 	}
 
-	public static void stop() {
-			Motor.A.flt();
+	public static void flt() {
+			Motor.A.flt(true);
 			Motor.B.flt();
 	}
 
-	public static void gyro_cal() {
+	public static void stop() {
+			Motor.A.stop(true);
+			Motor.B.stop();
+	}
+
+	public void gyro_init(){
 		gyro.getAngleMode(); 		// Set to purely angle mode
+		gyro_sample_size = gyro.sampleSize(); //Modify gyro sample buffer to account of change of mode
+		gyro_sample = new float[gyro_sample_size];
+		
+		gyro_cal(); // Call gyro calibration to recalibrate gyro
+	}
+	
+	public static void gyro_cal() {
+		stop(); // Full stop, robot must be stationary for gyro calibration
+		System.out.println("Hold for gyro calibration");
+		Delay.msDelay(1000);
 		gyro.reset(); 					// Reset the gyro
+		
 		// Wait for gyro to finish calibrating
 		// will output NaN until calibration complete
-		while (gyro.readValue() >= 0 && gyro.readValue() <0){
+		while (theta() == Float.NaN){
 			Delay.msDelay(40);
 		}
+
+		System.out.println("Gyro calibration complete");
 	}
 
 	public static float theta() {
-		return (float)gyro.fetchValue();
+		gyro.fetchSample(gyro_sample,0);
+		return gyro_sample[0];
 	}
 
 
