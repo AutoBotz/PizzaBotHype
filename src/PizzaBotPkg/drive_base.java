@@ -32,14 +32,14 @@ public class drive_base {
 	public static float pi = (float) Math.PI;
 
 
-	  public  float X = 0;
-	  public  float Y = 0;
+    public float X = 0;
+    public float Y = 0;
 
 	// Sensor ports
-	public static EV3GyroSensor gyro = new EV3GyroSensor(SensorPort.S1);
+	public EV3GyroSensor gyro = new EV3GyroSensor(SensorPort.S1);
 
 
-	public static void set_dims(float left_diameter, float right_diameter, float wheel_base){
+	public void set_dims(float left_diameter, float right_diameter, float wheel_base){
 		/**
 		 * This function accept the physical dimensions of the robot, and computes the corrections factors
 		 * for functions such as rotation, turn and forward driving to allow user to input reasonable numbers
@@ -62,9 +62,9 @@ public class drive_base {
 	}
 
 
-	public static void forward(int distance, int speed){
+	public void forward(int distance, int speed){
 
-		set_speed(speed, speed);
+	set_speed(speed, speed);
 
      double angle = (double)theta();
 
@@ -84,7 +84,7 @@ public class drive_base {
 		 Motor.B.rotateTo((int)(B_ang));
 	}
 
-	public static void spotTurn(int angturn, int speed){
+	public void spotTurn(int angturn, int speed){
 		 set_speed(speed, speed);
 		 int A_ang = Motor.A.getTachoCount();
 		 int B_ang = Motor.B.getTachoCount();
@@ -97,7 +97,7 @@ public class drive_base {
 		 Motor.A.rotateTo(A_ang, true);
 		 Motor.B.rotateTo(B_ang);
 	}
-	public static void spotTurn_gyro(int angturn){
+	public void spotTurn_gyro(int angturn){
 			int K = 1;
 
 			while (Math.abs(theta() - angturn) > 5) {
@@ -115,7 +115,7 @@ public class drive_base {
 
 			stop();
 		}
-	static void turn(int nominator, int denominator, int Speed, int direction) {
+	public void turn(int nominator, int denominator, int Speed, int direction) {
 		  if (direction > 0)
 			  Motor.A.setSpeed(denominator*Speed);
 		  	  Motor.B.setSpeed(nominator*Speed);
@@ -131,30 +131,45 @@ public class drive_base {
 	 }
 
 
-	public static void set_speed(int a, int b) {
+	public void set_speed(int a, int b) {
 		   Motor.A.setSpeed(a);
 		   Motor.B.setSpeed(b);
 			 Motor.A.forward();
 			 Motor.B.forward();
 	}
 
-	public static void stop() {
+	public void stop() {
 			Motor.A.flt();
 			Motor.B.flt();
 	}
 
-	public static void gyro_cal() {
-		gyro.getAngleMode(); 		// Set to purely angle mode
-		gyro.reset(); 					// Reset the gyro
-		// Wait for gyro to finish calibrating
-		// will output NaN until calibration complete
-		while (gyro.readValue() >= 0 && gyro.readValue() <0){
-			Delay.msDelay(40);
-		}
+	public void gyro_cal() {
+		
+		gyro.reset();
+		
+		int sampleSize = gyro.sampleSize(); 
+		float[] tiltsample = new float[sampleSize]; 
+		float[] ratesample = new float[sampleSize]; 
+		gyro.getAngleMode().fetchSample(tiltsample, 0); 
+		
+		System.out.println(tiltsample[0]);
+		
 	}
 
-	public static float theta() {
-		return (float)gyro.fetchValue();
+	public float theta() {
+		
+		float[] samples = new float[50];
+		
+		for (int i = 0; i < 50; i++) {
+			int sampleSize = gyro.sampleSize(); 
+			float[] tiltsample = new float[sampleSize]; 
+			float[] ratesample = new float[sampleSize]; 
+			gyro.getAngleMode().fetchSample(tiltsample, 0); 
+			samples[i] = tiltsample[0];
+		}
+		
+		
+		
 	}
 
 
