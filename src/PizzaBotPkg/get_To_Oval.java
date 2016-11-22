@@ -7,7 +7,6 @@ import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.hardware.sensor.EV3GyroSensor;
 import lejos.utility.Delay;
-import Math;
 
 //import statements
 

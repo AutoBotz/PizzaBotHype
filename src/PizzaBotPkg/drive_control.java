@@ -6,7 +6,6 @@ import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.hardware.sensor.EV3GyroSensor;
 import lejos.utility.Delay;
-import Math;
 
 //import statements
 
@@ -16,22 +15,23 @@ import Math;
 * @since       0.0
 */
 
-public class drive_base {
-	public static float Lwheel_amt_per_cm = Float.NaN;
-	public static float Lwheel_amt_full_rotation = Float.NaN;
-	public static float Lwheel_amt_pivot_turn = Float.NaN;
-	public static float Lwheel_distance_full_rev = Float.NaN;
-	public static float Lwheel_center = Float.NaN;
+public class drive_control {
+	public float Lwheel_amt_per_cm = Float.NaN;
+	public float Lwheel_amt_full_rotation = Float.NaN;
+	public float Lwheel_amt_pivot_turn = Float.NaN;
+	public float Lwheel_distance_full_rev = Float.NaN;
+	public float Lwheel_center = Float.NaN;
 
-	public static float Rwheel_amt_per_cm = Float.NaN;
-	public static float Rwheel_amt_full_rotation = Float.NaN;
-	public static float Rwheel_amt_pivot_turn = Float.NaN;
-	public static float Rwheel_distance_full_rev = Float.NaN;
-	public static float Rwheel_center = Float.NaN;
+	public float Rwheel_amt_per_cm = Float.NaN;
+	public float Rwheel_amt_full_rotation = Float.NaN;
+	public float Rwheel_amt_pivot_turn = Float.NaN;
+	public float Rwheel_distance_full_rev = Float.NaN;
+	public float Rwheel_center = Float.NaN;
 
 	public static float pi = (float) Math.PI;
 
 
+<<<<<<< HEAD:src/PizzaBotPkg/drive_base.java
     public float X = 0;
     public float Y = 0;
 
@@ -39,6 +39,16 @@ public class drive_base {
 	public EV3GyroSensor gyro = new EV3GyroSensor(SensorPort.S1);
 
 
+=======
+	  public float X = 0;
+	  public float Y = 0;
+
+	// Programmatics
+	public static EV3GyroSensor gyro = new EV3GyroSensor(SensorPort.S1);
+	public int gyro_sample_size = gyro.sampleSize();
+	public float[] gyro_sample = new float[gyro_sample_size];
+
+>>>>>>> origin/master:src/PizzaBotPkg/drive_control.java
 	public void set_dims(float left_diameter, float right_diameter, float wheel_base){
 		/**
 		 * This function accept the physical dimensions of the robot, and computes the corrections factors
@@ -97,6 +107,10 @@ public class drive_base {
 		 Motor.A.rotateTo(A_ang, true);
 		 Motor.B.rotateTo(B_ang);
 	}
+<<<<<<< HEAD:src/PizzaBotPkg/drive_base.java
+=======
+	
+>>>>>>> origin/master:src/PizzaBotPkg/drive_control.java
 	public void spotTurn_gyro(int angturn){
 			int K = 1;
 
@@ -115,7 +129,12 @@ public class drive_base {
 
 			stop();
 		}
+<<<<<<< HEAD:src/PizzaBotPkg/drive_base.java
 	public void turn(int nominator, int denominator, int Speed, int direction) {
+=======
+	
+	static void turn(int nominator, int denominator, int Speed, int direction) {
+>>>>>>> origin/master:src/PizzaBotPkg/drive_control.java
 		  if (direction > 0)
 			  Motor.A.setSpeed(denominator*Speed);
 		  	  Motor.B.setSpeed(nominator*Speed);
@@ -138,6 +157,7 @@ public class drive_base {
 			 Motor.B.forward();
 	}
 
+<<<<<<< HEAD:src/PizzaBotPkg/drive_base.java
 	public void stop() {
 			Motor.A.flt();
 			Motor.B.flt();
@@ -170,6 +190,44 @@ public class drive_base {
 		
 		
 		
+=======
+	public void flt() {
+			Motor.A.flt(true);
+			Motor.B.flt();
+	}
+
+	public void stop() {
+			Motor.A.stop(true);
+			Motor.B.stop();
+	}
+
+	public void gyro_init(){
+		gyro.getAngleMode(); 		// Set to purely angle mode
+		gyro_sample_size = gyro.sampleSize(); //Modify gyro sample buffer to account of change of mode
+		gyro_sample = new float[gyro_sample_size];
+		
+		this.gyro_cal(); // Call gyro calibration to recalibrate gyro
+	}
+	
+	public void gyro_cal() {
+		this.stop(); // Full stop, robot must be stationary for gyro calibration
+		System.out.println("Hold for gyro calibration");
+		Delay.msDelay(1000);
+		gyro.reset(); 					// Reset the gyro
+		
+		// Wait for gyro to finish calibrating
+		// will output NaN until calibration complete
+		while (theta() == Float.NaN){
+			Delay.msDelay(40);
+		}
+
+		System.out.println("Gyro calibration complete");
+	}
+
+	public float theta() {
+		gyro.fetchSample(gyro_sample,0);
+		return gyro_sample[0];
+>>>>>>> origin/master:src/PizzaBotPkg/drive_control.java
 	}
 
 
