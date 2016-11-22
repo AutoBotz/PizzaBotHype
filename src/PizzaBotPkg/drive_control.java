@@ -38,6 +38,12 @@ public class drive_control {
 	public static EV3GyroSensor gyro = new EV3GyroSensor(SensorPort.S1);
 	public int gyro_sample_size = gyro.sampleSize();
 	public float[] gyro_sample = new float[gyro_sample_size];
+	
+	
+	// Global statements
+	// A is left wheel
+	// B is right wheel
+	// A,B forward make robot go forward
 
 	public void set_dims(float left_diameter, float right_diameter, float wheel_base){
 		/**
@@ -64,24 +70,26 @@ public class drive_control {
 
 	public void forward(int distance, int speed){
 
+		// Set motor speed
 		set_speed(speed, speed);
 
-     double angle = (double)theta();
-
-     double x = distance*Math.cos(angle);
-     double y = distance*Math.sin(angle);
-
-     X += x;
-     Y += y;
-
-		 double A_ang = Motor.A.getTachoCount();
-		 double B_ang = Motor.B.getTachoCount();
-
-		 A_ang = A_ang + distance * (360/17);
-		 B_ang = B_ang + distance * (360/17);
-
-		 Motor.A.rotateTo((int)(A_ang), true);
-		 Motor.B.rotateTo((int)(B_ang));
+		
+		double angle = (double)theta();
+		
+		double x = distance*Math.cos(angle);
+		double y = distance*Math.sin(angle);
+		
+		X += x;
+		Y += y;
+		
+		double A_ang = Motor.A.getTachoCount();
+		double B_ang = Motor.B.getTachoCount();
+		
+		A_ang = A_ang + distance * (Lwheel_amt_per_cm);
+		B_ang = B_ang + distance * (Rwheel_amt_per_cm);
+		
+		Motor.A.rotateTo((int)(A_ang), true);
+		Motor.B.rotateTo((int)(B_ang));
 	}
 
 	public void spotTurn(int angturn, int speed){
@@ -100,12 +108,12 @@ public class drive_control {
 	
 	public void spotTurn_gyro(int angturn){
 			int K = 1;
-
-			while (Math.abs(theta() - angturn) > 5) {
-				float speed = K*(theta() - angturn);
-
-				set_speed((int)speed, (int)speed);
-				if (angturn > 0) {
+			float angGoal = this.theta() + angturn; // Determine the goal angle to turn to
+			while (Math.abs(theta() - angGoal) > 5) {
+				float speed = K * Math.abs(this.theta() - angturn);
+				set_speed((int)(speed+50), (int)(speed+50));
+				
+				if ((theta() - angGoal) > 0) {
 					Motor.A.forward();
 					Motor.B.backward();
 				} else {
@@ -114,7 +122,7 @@ public class drive_control {
 				}
 			}
 
-			stop();
+			this.flt();
 		}
 	
 	static void turn(int nominator, int denominator, int Speed, int direction) {
@@ -133,7 +141,7 @@ public class drive_control {
 	 }
 
 
-	public void set_speed(int a, int b) {
+	public static void set_speed(int a, int b) {
 		   Motor.A.setSpeed(a);
 		   Motor.B.setSpeed(b);
 			 Motor.A.forward();
