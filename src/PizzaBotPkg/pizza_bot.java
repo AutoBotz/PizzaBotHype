@@ -33,8 +33,23 @@ public class pizza_bot {
 	    robot.spotTurn_gyro(0);
 	    robot.flt();
 	    
-	    
-		
+	    while(false){
+	    	
+	    	// Exit code
+	    	if (Button.ESCAPE.isDown()) {
+	    	Motor.A.flt();
+	    	Motor.B.flt();
+	    	Delay.msDelay(1000);
+    
+	    	if (Button.ESCAPE.isDown()){break;}
+	    	}
+	    	// End Exit code
+	    	
+	    	while(true){
+	    		
+	    	}
+	    	
+	    }
 	}
 	
 	public static void move_to_point(int x, int y, drive_control robot) {
@@ -74,5 +89,29 @@ public class pizza_bot {
 		robot.forward((int)distance, 100);
 		
 	}
+	
+	public static int obstacle_encounter(float[] distance_array){
+		/**
+		 * This function accepts a array of 9 distance measurements and return the
+		 * direction to turn that will avoid obstacle
+		 *
+		 * @param distance_array array of 9 distance measurements
+		 */
+		
+		// Distance of robot to object distance_array[4]
+		
+		float curr_max = distance_array[4];
+		int max_direction = 4;
+		
+		for(int i = 0; i < 9; i++){
+			if (distance_array[i] < 250 && distance_array[i] > curr_max){
+				curr_max = distance_array[i];
+				max_direction = i;
+			}
+		}
+		return (int)(max_direction*22.5 - 90);
+	}
+
+
 }
 

@@ -287,15 +287,16 @@ public class drive_control {
 		/**
 		 * Start the ultrasonic sensor at the center
 		 * 
-		 * distance array represnetation
+		 * distance array representation
 		 * 
+		 *    0        1          2         3        4         5          6          7        8
 		 * [ Left ] [ FLL ] [ Fwd Left ] [ FFL ] [ Center ] [ FFR ] [ Fwd Right ] [ FRR ] [ Right ]
 		 */
 		float [] distance_array = new float[9];
 		Motor.C.setSpeed(60);
 		Motor.C.rotateTo(-90);
 		for (int i = 0; i < 9; i ++){
-			Motor.C.rotateTo(i*20 - 90);
+			Motor.C.rotateTo((int)(i*22.5 - 90));
 			distance_array[i] = this.avg_ping();
 		}
 		return distance_array;
