@@ -162,19 +162,17 @@ public class drive_control {
 		System.out.println(tiltsample[0]);
 
 	}
+*/
+	public float smooth_theta(){
 
-	public float theta() {
+		double sum = 0.0;
 
-		float[] samples = new float[50];
-
-		for (int i = 0; i < 50; i++) {
-			int sampleSize = gyro.sampleSize();
-			float[] tiltsample = new float[sampleSize];
-			float[] ratesample = new float[sampleSize];
-			gyro.getAngleMode().fetchSample(tiltsample, 0);
-			samples[i] = tiltsample[0];
-		}
-		*/
+		for (int i = 0; i < 20; i++)
+			sum += this.theta();
+			
+		return (float) sum / 20;
+	}
+	
 	public void flt() {
 			Motor.A.flt(true);
 			Motor.B.flt();
@@ -208,7 +206,7 @@ public class drive_control {
 		System.out.println("Gyro calibration complete");
 	}
 
-	public double theta() {
+	public float theta() {
 		gyro.getAngleMode().fetchSample(gyro_sample,0);
 		return gyro_sample[0] %360;
 	}
