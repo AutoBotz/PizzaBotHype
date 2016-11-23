@@ -37,10 +37,11 @@ public class drive_control {
 	// Programmatics
 	public static EV3GyroSensor gyro;
 	public static EV3UltrasonicSensor sonic;
-	
-	
+
+
 	public float[] gyro_sample;
 	public float[] sonicsample;
+
 
 	// Global statements
 	// A is left wheel
@@ -51,7 +52,7 @@ public class drive_control {
 		 * This function accept the physical dimensions of the robot, and computes the corrections factors
 		 * for functions such as rotation, turn and forward driving to allow user to input reasonable numbers
 		 * into the control functions. Such as centimeters and centimeters per second.
-		 * 
+		 *
 		 * Returns nothing
 		 *
 		 * @param left_diameter Diameter of the left wheel
@@ -73,19 +74,20 @@ public class drive_control {
 	public void forward(int distance, int speed){
 		/**
 		 * This function handles driving forward of robot
-		 * 
+		 *
 		 * Returns nothing
 		 *
 		 * @param distance Distance that robot should travel, in centimeters
 		 * @param speed speed of the wheels in centimeter per second
 		 */
-		
+
 		this.set_speed(speed, speed);
 
 		double angle = (double)theta();
 
 		double x = distance*Math.cos((pi*angle)/180);
 		double y = distance*Math.sin((pi*angle)/180);
+
 
 		X += x;
 		Y += y;
@@ -104,13 +106,13 @@ public class drive_control {
 		/**
 		 * This function let robot rotate without moving translationally.
 		 * Wheel odometry is used for counting of rotation
-		 * 
+		 *
 		 * Returns nothing
 		 *
 		 * @param angturn Angles of rotation desired, in degrees. +ve is CW, -vs is CCW
 		 * @param speed speed of the wheels in centimeter per second
 		 */
-		
+
 		 this.set_speed(speed, speed);
 		 int A_ang = Motor.A.getTachoCount();
 		 int B_ang = Motor.B.getTachoCount();
@@ -123,10 +125,11 @@ public class drive_control {
 		 Motor.A.rotateTo(A_ang, true);
 		 Motor.B.rotateTo(B_ang);
 	}
+
 	public void spotTurn_gyro(int angturn){		/**
 		 * This function let robot rotate without moving translationally.
 		 * Gyroscope angle reading is used for counting of rotation
-		 * 
+		 *
 		 * Returns nothing
 		 *
 		 * @param angturn Angles of rotation desired, in degrees. +ve is CW, -vs is CCW
@@ -149,10 +152,11 @@ public class drive_control {
 
 			this.flt();
 		}
-	public void turn(int nominator, int denominator, int Speed, int direction) {		
+
+	public void turn(int nominator, int denominator, int Speed, int direction) {
 		/**
 		 * This function let robot turn with a given radius of turn
-		 * 
+		 *
 		 * Returns nothing
 		 *
 		 * @param nominator speed scaling for left wheel
@@ -178,7 +182,7 @@ public class drive_control {
 	public void set_speed(float a, float b) {
 		/**
 		 * This function set speed of the wheels of the robot
-		 * 
+		 *
 		 * Returns nothing
 		 *
 		 * @param a speed of the left wheel, in cemtimeters per second
@@ -194,10 +198,10 @@ public class drive_control {
 
 		for (int i = 0; i < 10; i++)
 			sum += this.theta();
-			
+
 		return (float) sum / 10;
 	}
-	
+
 	public void flt() {
 			Motor.A.flt(true);
 			Motor.B.flt();
@@ -218,7 +222,7 @@ public class drive_control {
 		} else if (portNum == 4) {
 			gyro = new EV3GyroSensor(SensorPort.S4);
 		}
-		
+
 		gyro.getAngleMode(); 		// Set to purely angle mode
 		int gyro_sample_size = gyro.sampleSize(); //Modify gyro sample buffer to account of change of mode
 		gyro_sample = new float[gyro_sample_size];
@@ -251,44 +255,59 @@ public class drive_control {
 		} else if (portNum == 4) {
 			sonic = new EV3UltrasonicSensor(SensorPort.S4);
 		}
-		
+
 		int sonic_sampleSize = sonic.sampleSize();
 		sonicsample = new float[sonic_sampleSize];
 	}
-	
+
 	public float theta() {
 		gyro.getAngleMode().fetchSample(gyro_sample,0);
 		return gyro_sample[0] %360;
 	}
-	
+
 	public float ping(){
 		/**
 		 * This function returns the distance read by ultrasonic sensor
 		 */
 		sonic.fetchSample(sonicsample, 0);
 		return sonicsample[0]*100;
-		
+
 	}
-	
+
 	public float avg_ping(){
-		
+
 		// Each ping should take 20ms to call, so 5 average will take 100ms.
 
 		double sum = 0.0;
 
+
 		for (int i = 0; i < 5; i++)
 			sum += this.ping();
-			
+
 		return (float) sum / 5;
-		
+	}
+
+	public void getCoordinate(int angturn, int speed){
+		 set_speed(speed, speed);
+		 int A_ang = Motor.A.getTachoCount();
+		 int B_ang = Motor.B.getTachoCount();
+		 int turnAmt = angturn ;
+
+
+		 A_ang = A_ang - turnAmt;
+		 B_ang = B_ang + turnAmt;
+
+		 Motor.A.rotateTo(A_ang, true);
+		 Motor.B.rotateTo(B_ang);
+
 	}
 
 	public float[] sweep_ping(){
 		/**
 		 * Start the ultrasonic sensor at the center
-		 * 
+		 *
 		 * distance array representation
-		 * 
+		 *
 		 *    0        1          2         3        4         5          6          7        8
 		 * [ Left ] [ FLL ] [ Fwd Left ] [ FFL ] [ Center ] [ FFR ] [ Fwd Right ] [ FRR ] [ Right ]
 		 */
