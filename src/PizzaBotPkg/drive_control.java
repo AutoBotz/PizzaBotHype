@@ -270,4 +270,34 @@ public class drive_control {
 		
 	}
 	
+	public float avg_ping(){
+		
+		// Each ping should take 20ms to call, so 5 average will take 100ms.
+
+		double sum = 0.0;
+
+		for (int i = 0; i < 5; i++)
+			sum += this.ping();
+			
+		return (float) sum / 5;
+		
+	}
+
+	public float[] sweep_ping(){
+		/**
+		 * Start the ultrasonic sensor at the center
+		 * 
+		 * distance array represnetation
+		 * 
+		 * [ Left ] [ FLL ] [ Fwd Left ] [ FFL ] [ Center ] [ FFR ] [ Fwd Right ] [ FRR ] [ Right ]
+		 */
+		float [] distance_array = new float[9];
+		Motor.C.setSpeed(60);
+		Motor.C.rotateTo(-90);
+		for (int i = 0; i < 9; i ++){
+			Motor.C.rotateTo(i*20 - 90);
+			distance_array[i] = this.avg_ping();
+		}
+		return distance_array;
+	}
 }
