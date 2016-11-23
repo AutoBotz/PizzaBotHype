@@ -5,6 +5,7 @@ import lejos.hardware.motor.Motor;
 import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.hardware.sensor.EV3GyroSensor;
+import lejos.hardware.sensor.EV3UltrasonicSensor;
 import lejos.utility.Delay;
 
 //import statements
@@ -28,16 +29,18 @@ public class drive_control {
 	public float Rwheel_distance_full_rev = Float.NaN;
 	public float Rwheel_center = Float.NaN;
 
-	public static float pi = (float) Math.PI;
+	public static double pi = Math.PI;
 
   public float X = 0;
   public float Y = 0;
 
 	// Programmatics
-	public static EV3GyroSensor gyro = new EV3GyroSensor(SensorPort.S1);
-	public int gyro_sample_size = gyro.sampleSize();
-	public float[] gyro_sample = new float[gyro_sample_size];
-
+	public static EV3GyroSensor gyro;
+	public static EV3UltrasonicSensor sonic;
+	
+	
+	public float[] gyro_sample;
+	public float[] sonicsample;
 
 	// Global statements
 	// A is left wheel
@@ -48,16 +51,17 @@ public class drive_control {
 		 * This function accept the physical dimensions of the robot, and computes the corrections factors
 		 * for functions such as rotation, turn and forward driving to allow user to input reasonable numbers
 		 * into the control functions. Such as centimeters and centimeters per second.
+		 * 
+		 * Returns nothing
 		 *
 		 * @param left_diameter Diameter of the left wheel
 		 * @param right_diameter Diameter of the right wheel
 		 * @param wheel_base The inner distance between two wheels
 		 * @param wheel_width The width of the wheels
-		 *
 		 */
 
-		Lwheel_distance_full_rev = pi * (left_diameter/2) * (left_diameter/2);
-		Rwheel_distance_full_rev = pi * (right_diameter/2) * (right_diameter/2);
+		Lwheel_distance_full_rev = (float) pi * (left_diameter/2) * (left_diameter/2);
+		Rwheel_distance_full_rev = (float) pi * (right_diameter/2) * (right_diameter/2);
 
 		Lwheel_amt_per_cm = 360/Lwheel_distance_full_rev;
 		Rwheel_amt_per_cm = 360/Rwheel_distance_full_rev;
@@ -67,13 +71,21 @@ public class drive_control {
 
 
 	public void forward(int distance, int speed){
-		// Set motor speed
-		set_speed(speed, speed);
+		/**
+		 * This function handles driving forward of robot
+		 * 
+		 * Returns nothing
+		 *
+		 * @param distance Distance that robot should travel, in centimeters
+		 * @param speed speed of the wheels in centimeter per second
+		 */
+		
+		this.set_speed(speed, speed);
 
 		double angle = (double)theta();
 
-		double x = distance*Math.cos((3.1459*angle)/180);
-		double y = distance*Math.sin((3.1459*angle)/180);
+		double x = distance*Math.cos((pi*angle)/180);
+		double y = distance*Math.sin((pi*angle)/180);
 
 		X += x;
 		Y += y;
@@ -83,17 +95,23 @@ public class drive_control {
 
 		A_ang = A_ang + distance * (Lwheel_amt_per_cm);
 		B_ang = B_ang + distance * (Rwheel_amt_per_cm);
-		
-		
 
 		Motor.A.rotateTo((int)(A_ang), true);
 		Motor.B.rotateTo((int)(B_ang));
-		
-		
 	}
 
 	public void spotTurn(int angturn, int speed){
-		 set_speed(speed, speed);
+		/**
+		 * This function let robot rotate without moving translationally.
+		 * Wheel odometry is used for counting of rotation
+		 * 
+		 * Returns nothing
+		 *
+		 * @param angturn Angles of rotation desired, in degrees. +ve is CW, -vs is CCW
+		 * @param speed speed of the wheels in centimeter per second
+		 */
+		
+		 this.set_speed(speed, speed);
 		 int A_ang = Motor.A.getTachoCount();
 		 int B_ang = Motor.B.getTachoCount();
 		 int turnAmt = angturn ;
@@ -105,12 +123,20 @@ public class drive_control {
 		 Motor.A.rotateTo(A_ang, true);
 		 Motor.B.rotateTo(B_ang);
 	}
-	public void spotTurn_gyro(int angturn){
+	public void spotTurn_gyro(int angturn){		/**
+		 * This function let robot rotate without moving translationally.
+		 * Gyroscope angle reading is used for counting of rotation
+		 * 
+		 * Returns nothing
+		 *
+		 * @param angturn Angles of rotation desired, in degrees. +ve is CW, -vs is CCW
+		 * @param speed speed of the wheels in centimeter per second
+		 */
 			double K = 0.8;
 			double angGoal = this.theta() + angturn; // Determine the goal angle to turn to
-			while (Math.abs(theta() - angGoal) > 1) {
+			while (Math.abs(theta() - angGoal) > 0.5) {
 				double speed = K * Math.abs(this.theta() - angturn);
-				set_speed((int)(speed+50), (int)(speed+50));
+				set_speed((int)(speed+30), (int)(speed+30));
 
 				if ((theta() - angGoal) > 0) {
 					Motor.A.backward();
@@ -123,7 +149,17 @@ public class drive_control {
 
 			this.flt();
 		}
-	public void turn(int nominator, int denominator, int Speed, int direction) {
+	public void turn(int nominator, int denominator, int Speed, int direction) {		
+		/**
+		 * This function let robot turn with a given radius of turn
+		 * 
+		 * Returns nothing
+		 *
+		 * @param nominator speed scaling for left wheel
+		 * @param denominator speed scaling for right wheel
+		 * @param Speed speed of the wheels in centimeter per second
+		 * @param direction positive for forward, negative for back
+		 */
 		if (direction > 0)
 			  Motor.A.setSpeed(denominator*Speed);
 		  	  Motor.B.setSpeed(nominator*Speed);
@@ -139,38 +175,27 @@ public class drive_control {
 	 }
 
 
-	public static void set_speed(int a, int b) {
-		   Motor.A.setSpeed(a);
-		   Motor.B.setSpeed(b);
+	public void set_speed(float a, float b) {
+		/**
+		 * This function set speed of the wheels of the robot
+		 * 
+		 * Returns nothing
+		 *
+		 * @param a speed of the left wheel, in cemtimeters per second
+		 * @param b speed of the left wheel, in cemtimeters per second
+		 */
+		   Motor.A.setSpeed((int) Lwheel_amt_per_cm*a);
+		   Motor.B.setSpeed((int) Rwheel_amt_per_cm*b);
 	}
 
-/*
-	public void stop() {
-			Motor.A.flt();
-			Motor.B.flt();
-	}
-
-	public void gyro_cal() {
-
-		gyro.reset();
-
-		int sampleSize = gyro.sampleSize();
-		float[] tiltsample = new float[sampleSize];
-		float[] ratesample = new float[sampleSize];
-		gyro.getAngleMode().fetchSample(tiltsample, 0);
-
-		System.out.println(tiltsample[0]);
-
-	}
-*/
 	public float smooth_theta(){
 
 		double sum = 0.0;
 
-		for (int i = 0; i < 20; i++)
+		for (int i = 0; i < 10; i++)
 			sum += this.theta();
 			
-		return (float) sum / 20;
+		return (float) sum / 10;
 	}
 	
 	public void flt() {
@@ -183,9 +208,19 @@ public class drive_control {
 			Motor.B.stop();
 	}
 
-	public void gyro_init(){
+	public void gyro_init(int portNum){
+		if (portNum == 1){
+			gyro = new EV3GyroSensor(SensorPort.S1);
+		} else if (portNum == 2) {
+			gyro = new EV3GyroSensor(SensorPort.S2);
+		} else if (portNum == 3) {
+			gyro = new EV3GyroSensor(SensorPort.S3);
+		} else if (portNum == 4) {
+			gyro = new EV3GyroSensor(SensorPort.S4);
+		}
+		
 		gyro.getAngleMode(); 		// Set to purely angle mode
-		gyro_sample_size = gyro.sampleSize(); //Modify gyro sample buffer to account of change of mode
+		int gyro_sample_size = gyro.sampleSize(); //Modify gyro sample buffer to account of change of mode
 		gyro_sample = new float[gyro_sample_size];
 
 		this.gyro_cal(); // Call gyro calibration to recalibrate gyro
@@ -206,10 +241,33 @@ public class drive_control {
 		System.out.println("Gyro calibration complete");
 	}
 
+	public void sonic_init(int portNum){
+		if (portNum == 1){
+			sonic = new EV3UltrasonicSensor(SensorPort.S1);
+		} else if (portNum == 2) {
+			sonic = new EV3UltrasonicSensor(SensorPort.S2);
+		} else if (portNum == 3) {
+			sonic = new EV3UltrasonicSensor(SensorPort.S3);
+		} else if (portNum == 4) {
+			sonic = new EV3UltrasonicSensor(SensorPort.S4);
+		}
+		
+		int sonic_sampleSize = sonic.sampleSize();
+		sonicsample = new float[sonic_sampleSize];
+	}
+	
 	public float theta() {
 		gyro.getAngleMode().fetchSample(gyro_sample,0);
 		return gyro_sample[0] %360;
 	}
-
-
+	
+	public float ping(){
+		/**
+		 * This function returns the distance read by ultrasonic sensor
+		 */
+		sonic.fetchSample(sonicsample, 0);
+		return sonicsample[0]*100;
+		
+	}
+	
 }

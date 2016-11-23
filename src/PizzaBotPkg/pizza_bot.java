@@ -18,44 +18,56 @@ import lejos.utility.Delay;
 
 public class pizza_bot {
 
-	public static void main(String[] args) {
-		drive_control robot = new drive_control();
-		robot.set_dims(4, 4, 12);
-		robot.gyro_cal();	// calibrate gyro
+	public static drive_control robot = new drive_control();
+	public static user_interface UI = new user_interface();
 	
-		
-		
+	public static void main(String[] args) {
+		robot.gyro_init(1);
+		robot.sonic_init(2);
+		robot.set_dims(4, 4, 12);
+	
 	    move_to_point(15,15, robot);
 	    move_to_point(15,-15, robot);
 	    move_to_point(0, 0, robot);
 	    
 	    robot.spotTurn_gyro(0);
+	    robot.flt();
 	    
 	    
 		
 	}
 	
 	public static void move_to_point(int x, int y, drive_control robot) {
+		/**
+		 * This function accept the physical dimensions of the robot, and computes the corrections factors
+		 * for functions such as rotation, turn and forward driving to allow user to input reasonable numbers
+		 * into the control functions. Such as centimeters and centimeters per second.
+		 * 
+		 * Returns nothing
+		 *
+		 * @param left_diameter Diameter of the left wheel
+		 * @param right_diameter Diameter of the right wheel
+		 * @param wheel_base The inner distance between two wheels
+		 * @param wheel_width The width of the wheels
+		 */
 		
-		System.out.println("Current Pos (" + (int)robot.X + " , " + (int)robot.Y +" , " +(int)robot.theta() +")");
+		UI.println("Current Pos (" + (int)robot.X + " , " + (int)robot.Y +" , " +(int)robot.theta() +")");
 
-		
-		
-		double new_angle = (180*Math.atan((y-robot.Y)/(x-robot.X))/3.14159);
+		double delta_angle = (180*Math.atan((y-robot.Y)/(x-robot.X))/3.14159);
 		double distance = Math.sqrt((y-robot.Y)*(y-robot.Y) + (x-robot.X)*(x-robot.X));
 		
 
 		// driving reverse
 		if ((y-robot.Y)<0){
 			if ((x-robot.X)<0){
-				new_angle = -90-new_angle;
+				delta_angle = -90-delta_angle;
 			}
 			else
-				new_angle = 90 - new_angle;
+				delta_angle = 90 - delta_angle;
 		}
 
 		
-		robot.spotTurn_gyro((int)new_angle);
+		robot.spotTurn_gyro((int)delta_angle);
 		
 		System.out.println("going foreward");
 		
