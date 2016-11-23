@@ -30,31 +30,19 @@ public class drive_control {
 
 	public static float pi = (float) Math.PI;
 
-
-<<<<<<< HEAD:src/PizzaBotPkg/drive_base.java
-    public float X = 0;
-    public float Y = 0;
-
-	// Sensor ports
-	public EV3GyroSensor gyro = new EV3GyroSensor(SensorPort.S1);
-
-
-=======
-	  public float X = 0;
-	  public float Y = 0;
+  public float X = 0;
+  public float Y = 0;
 
 	// Programmatics
 	public static EV3GyroSensor gyro = new EV3GyroSensor(SensorPort.S1);
 	public int gyro_sample_size = gyro.sampleSize();
 	public float[] gyro_sample = new float[gyro_sample_size];
-	
-	
+
+
 	// Global statements
 	// A is left wheel
 	// B is right wheel
 	// A,B forward make robot go forward
-
->>>>>>> origin/master:src/PizzaBotPkg/drive_control.java
 	public void set_dims(float left_diameter, float right_diameter, float wheel_base){
 		/**
 		 * This function accept the physical dimensions of the robot, and computes the corrections factors
@@ -80,28 +68,24 @@ public class drive_control {
 
 	public void forward(int distance, int speed){
 
-<<<<<<< HEAD
-	set_speed(speed, speed);
-=======
+
 		// Set motor speed
 		set_speed(speed, speed);
->>>>>>> origin/master
 
-		
 		double angle = (double)theta();
-		
+
 		double x = distance*Math.cos(angle);
 		double y = distance*Math.sin(angle);
-		
+
 		X += x;
 		Y += y;
-		
+
 		double A_ang = Motor.A.getTachoCount();
 		double B_ang = Motor.B.getTachoCount();
-		
+
 		A_ang = A_ang + distance * (Lwheel_amt_per_cm);
 		B_ang = B_ang + distance * (Rwheel_amt_per_cm);
-		
+
 		Motor.A.rotateTo((int)(A_ang), true);
 		Motor.B.rotateTo((int)(B_ang));
 	}
@@ -119,17 +103,13 @@ public class drive_control {
 		 Motor.A.rotateTo(A_ang, true);
 		 Motor.B.rotateTo(B_ang);
 	}
-<<<<<<< HEAD:src/PizzaBotPkg/drive_base.java
-=======
-	
->>>>>>> origin/master:src/PizzaBotPkg/drive_control.java
 	public void spotTurn_gyro(int angturn){
 			int K = 1;
 			float angGoal = this.theta() + angturn; // Determine the goal angle to turn to
 			while (Math.abs(theta() - angGoal) > 5) {
 				float speed = K * Math.abs(this.theta() - angturn);
 				set_speed((int)(speed+50), (int)(speed+50));
-				
+
 				if ((theta() - angGoal) > 0) {
 					Motor.A.forward();
 					Motor.B.backward();
@@ -141,12 +121,7 @@ public class drive_control {
 
 			this.flt();
 		}
-<<<<<<< HEAD:src/PizzaBotPkg/drive_base.java
 	public void turn(int nominator, int denominator, int Speed, int direction) {
-=======
-	
-	static void turn(int nominator, int denominator, int Speed, int direction) {
->>>>>>> origin/master:src/PizzaBotPkg/drive_control.java
 		  if (direction > 0)
 			  Motor.A.setSpeed(denominator*Speed);
 		  	  Motor.B.setSpeed(nominator*Speed);
@@ -169,40 +144,37 @@ public class drive_control {
 			 Motor.B.forward();
 	}
 
-<<<<<<< HEAD:src/PizzaBotPkg/drive_base.java
+/*
 	public void stop() {
 			Motor.A.flt();
 			Motor.B.flt();
 	}
 
 	public void gyro_cal() {
-		
+
 		gyro.reset();
-		
-		int sampleSize = gyro.sampleSize(); 
-		float[] tiltsample = new float[sampleSize]; 
-		float[] ratesample = new float[sampleSize]; 
-		gyro.getAngleMode().fetchSample(tiltsample, 0); 
-		
+
+		int sampleSize = gyro.sampleSize();
+		float[] tiltsample = new float[sampleSize];
+		float[] ratesample = new float[sampleSize];
+		gyro.getAngleMode().fetchSample(tiltsample, 0);
+
 		System.out.println(tiltsample[0]);
-		
+
 	}
 
 	public float theta() {
-		
+
 		float[] samples = new float[50];
-		
+
 		for (int i = 0; i < 50; i++) {
-			int sampleSize = gyro.sampleSize(); 
-			float[] tiltsample = new float[sampleSize]; 
-			float[] ratesample = new float[sampleSize]; 
-			gyro.getAngleMode().fetchSample(tiltsample, 0); 
+			int sampleSize = gyro.sampleSize();
+			float[] tiltsample = new float[sampleSize];
+			float[] ratesample = new float[sampleSize];
+			gyro.getAngleMode().fetchSample(tiltsample, 0);
 			samples[i] = tiltsample[0];
 		}
-		
-		
-		
-=======
+		*/
 	public void flt() {
 			Motor.A.flt(true);
 			Motor.B.flt();
@@ -217,16 +189,16 @@ public class drive_control {
 		gyro.getAngleMode(); 		// Set to purely angle mode
 		gyro_sample_size = gyro.sampleSize(); //Modify gyro sample buffer to account of change of mode
 		gyro_sample = new float[gyro_sample_size];
-		
+
 		this.gyro_cal(); // Call gyro calibration to recalibrate gyro
 	}
-	
+
 	public void gyro_cal() {
 		this.stop(); // Full stop, robot must be stationary for gyro calibration
 		System.out.println("Hold for gyro calibration");
 		Delay.msDelay(1000);
 		gyro.reset(); 					// Reset the gyro
-		
+
 		// Wait for gyro to finish calibrating
 		// will output NaN until calibration complete
 		while (theta() == Float.NaN){
@@ -239,7 +211,6 @@ public class drive_control {
 	public float theta() {
 		gyro.fetchSample(gyro_sample,0);
 		return gyro_sample[0];
->>>>>>> origin/master:src/PizzaBotPkg/drive_control.java
 	}
 
 
