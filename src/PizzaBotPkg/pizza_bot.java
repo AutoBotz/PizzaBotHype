@@ -24,6 +24,7 @@ public class pizza_bot {
 	public static void main(String[] args) {
 		robot.gyro_init(1);
 		robot.sonic_init(2);
+		robot.init_pos(0.0, 0.0);
 		robot.set_dims(4, 4, 12);
 	
 	    move_to_point(15,15, robot);
@@ -33,7 +34,7 @@ public class pizza_bot {
 	    robot.spotTurn_gyro(0);
 	    robot.flt();
 	    
-	    while(false){
+	    while(true){
 	    	
 	    	// Exit code
 	    	if (Button.ESCAPE.isDown()) {
@@ -45,8 +46,8 @@ public class pizza_bot {
 	    	}
 	    	// End Exit code
 	    	
-	    	while(true){
-	    		
+	    	while(robot.ping() > 15){
+	    		robot.forward(5, 5);
 	    	}
 	    	
 	    }

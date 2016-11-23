@@ -31,8 +31,8 @@ public class drive_control {
 
 	public static double pi = Math.PI;
 
-  public float X = 0;
-  public float Y = 0;
+	public double X ;
+	public double Y ;
 
 	// Programmatics
 	public static EV3GyroSensor gyro;
@@ -71,6 +71,11 @@ public class drive_control {
 	}
 
 
+	public void init_pos(double x_init, double y_init){
+		X = x_init;
+		Y = y_init;
+	}
+	
 	public void forward(int distance, int speed){
 		/**
 		 * This function handles driving forward of robot
@@ -83,11 +88,11 @@ public class drive_control {
 
 		this.set_speed(speed, speed);
 
-		double angle = (double)theta();
+		double angle = (double)theta() %360;
+		angle = (angle/360) * 2 * pi;
 
-		double x = distance*Math.cos((pi*angle)/180);
-		double y = distance*Math.sin((pi*angle)/180);
-
+		double x = distance*Math.cos(angle);
+		double y = distance*Math.sin(angle);
 
 		X += x;
 		Y += y;
@@ -193,9 +198,7 @@ public class drive_control {
 	}
 
 	public float smooth_theta(){
-
 		double sum = 0.0;
-
 		for (int i = 0; i < 10; i++)
 			sum += this.theta();
 
