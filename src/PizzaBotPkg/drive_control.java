@@ -67,15 +67,13 @@ public class drive_control {
 
 
 	public void forward(int distance, int speed){
-
-
 		// Set motor speed
 		set_speed(speed, speed);
 
 		double angle = (double)theta();
 
-		double x = distance*Math.cos(angle);
-		double y = distance*Math.sin(angle);
+		double x = distance*Math.cos((3.1459*angle)/180);
+		double y = distance*Math.sin((3.1459*angle)/180);
 
 		X += x;
 		Y += y;
@@ -85,9 +83,13 @@ public class drive_control {
 
 		A_ang = A_ang + distance * (Lwheel_amt_per_cm);
 		B_ang = B_ang + distance * (Rwheel_amt_per_cm);
+		
+		
 
 		Motor.A.rotateTo((int)(A_ang), true);
 		Motor.B.rotateTo((int)(B_ang));
+		
+		
 	}
 
 	public void spotTurn(int angturn, int speed){
@@ -104,25 +106,25 @@ public class drive_control {
 		 Motor.B.rotateTo(B_ang);
 	}
 	public void spotTurn_gyro(int angturn){
-			int K = 1;
-			float angGoal = this.theta() + angturn; // Determine the goal angle to turn to
-			while (Math.abs(theta() - angGoal) > 5) {
-				float speed = K * Math.abs(this.theta() - angturn);
+			double K = 0.8;
+			double angGoal = this.theta() + angturn; // Determine the goal angle to turn to
+			while (Math.abs(theta() - angGoal) > 1) {
+				double speed = K * Math.abs(this.theta() - angturn);
 				set_speed((int)(speed+50), (int)(speed+50));
 
 				if ((theta() - angGoal) > 0) {
-					Motor.A.forward();
-					Motor.B.backward();
-				} else {
 					Motor.A.backward();
 					Motor.B.forward();
+				} else {
+					Motor.A.forward();
+					Motor.B.backward();
 				}
 			}
 
 			this.flt();
 		}
 	public void turn(int nominator, int denominator, int Speed, int direction) {
-		  if (direction > 0)
+		if (direction > 0)
 			  Motor.A.setSpeed(denominator*Speed);
 		  	  Motor.B.setSpeed(nominator*Speed);
 		  	  Motor.A.forward();
@@ -140,8 +142,6 @@ public class drive_control {
 	public static void set_speed(int a, int b) {
 		   Motor.A.setSpeed(a);
 		   Motor.B.setSpeed(b);
-			 Motor.A.forward();
-			 Motor.B.forward();
 	}
 
 /*
@@ -196,7 +196,7 @@ public class drive_control {
 	public void gyro_cal() {
 		this.stop(); // Full stop, robot must be stationary for gyro calibration
 		System.out.println("Hold for gyro calibration");
-		Delay.msDelay(1000);
+		Delay.msDelay(500);
 		gyro.reset(); 					// Reset the gyro
 
 		// Wait for gyro to finish calibrating
@@ -208,9 +208,9 @@ public class drive_control {
 		System.out.println("Gyro calibration complete");
 	}
 
-	public float theta() {
-		gyro.fetchSample(gyro_sample,0);
-		return gyro_sample[0];
+	public double theta() {
+		gyro.getAngleMode().fetchSample(gyro_sample,0);
+		return gyro_sample[0] %360;
 	}
 
 
