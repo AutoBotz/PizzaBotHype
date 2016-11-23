@@ -44,12 +44,11 @@ public class pizza_bot {
 		double new_angle = (180*Math.atan((y-robot.Y)/(x-robot.X))/3.14159);
 		double distance = Math.sqrt((y-robot.Y)*(y-robot.Y) + (x-robot.X)*(x-robot.X));
 		
-		System.out.println(new_angle + " "+ distance);
 
 		// driving reverse
 		if ((y-robot.Y)<0){
 			if ((x-robot.X)<0){
-				new_angle = -90-new_angle-robot.theta();
+				new_angle = -90-new_angle;
 			}
 			else
 				new_angle = 90 - new_angle;
