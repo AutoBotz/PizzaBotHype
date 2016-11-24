@@ -141,9 +141,9 @@ public class drive_control {
 		 * @param speed speed of the wheels in centimeter per second
 		 */
 			double K = 0.8;
-			double angGoal = this.theta() + angturn; // Determine the goal angle to turn to
+			double angGoal =  angturn; // Determine the goal angle to turn to
 			while (Math.abs(theta() - angGoal) > 0.5) {
-				double speed = K * Math.abs(this.theta() - angturn);
+				double speed = K * Math.abs(this.theta() - angGoal);
 				set_speed((int)(speed+50), (int)(speed+50));
 
 				if ((theta() - angGoal) > 0) {

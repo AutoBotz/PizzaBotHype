@@ -24,12 +24,15 @@ public class pizza_bot {
 	public static void main(String[] args) {
 		robot.gyro_init(1);
 		robot.sonic_init(2);
+		
 		robot.init_pos(0.0, 0.0);
 		robot.set_dims(4, 4, 12);
 	
-	    move_to_point(15,15, robot);
-	    move_to_point(15,-15, robot);
+	    move_to_point(0,10, robot);
+	    move_to_point(10,10, robot);
+	    move_to_point(10,0, robot);
 	    move_to_point(0, 0, robot);
+		UI.println("Current Pos (" + (int)robot.X + " , " + (int)robot.Y +" , " +(int)robot.theta() +")");
 	    
 	    robot.spotTurn_gyro(0);
 	    robot.flt();
@@ -64,7 +67,7 @@ public class pizza_bot {
 		 * @param wheel_width The width of the wheels
 		 */
 		
-		UI.println("Current Pos (" + (int)robot.X + " , " + (int)robot.Y +" , " +(int)robot.theta() +")");
+		//UI.println("(" + (int)robot.X + " , " + (int)robot.Y +" , " +(int)robot.theta() +")");
 
 		double delta_angle = (180*Math.atan((y-robot.Y)/(x-robot.X))/3.14159);
 		double distance = Math.sqrt((y-robot.Y)*(y-robot.Y) + (x-robot.X)*(x-robot.X));
@@ -78,13 +81,14 @@ public class pizza_bot {
 			else
 				delta_angle = 90 - delta_angle;
 		}
-
+		
+		UI.println("" + delta_angle);
 		
 		robot.spotTurn_gyro((int)delta_angle);
 		
 		System.out.println("going foreward");
 		
-		robot.forward((int)distance, 100);
+		robot.forward((int)distance, 200);
 		
 	}
 	
