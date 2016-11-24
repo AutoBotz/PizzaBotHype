@@ -75,6 +75,9 @@ public class drive_control {
 		X = x_init;
 		Y = y_init;
 	}
+	public void forward_with_sonic(int distance, int speed){
+	}
+
 
 	public void forward(int distance, int speed){
 		/**
