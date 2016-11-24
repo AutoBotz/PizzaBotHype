@@ -46,9 +46,6 @@ public class pizza_bot {
 	    	}
 	    	// End Exit code
 	    	
-	    	while(robot.ping() > 15){
-	    		robot.forward(5, 5);
-	    	}
 	    	
 	    }
 	}

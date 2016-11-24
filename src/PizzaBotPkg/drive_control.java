@@ -144,7 +144,7 @@ public class drive_control {
 			double angGoal = this.theta() + angturn; // Determine the goal angle to turn to
 			while (Math.abs(theta() - angGoal) > 0.5) {
 				double speed = K * Math.abs(this.theta() - angturn);
-				set_speed((int)(speed+30), (int)(speed+30));
+				set_speed((int)(speed+50), (int)(speed+50));
 
 				if ((theta() - angGoal) > 0) {
 					Motor.A.backward();
@@ -193,8 +193,8 @@ public class drive_control {
 		 * @param a speed of the left wheel, in cemtimeters per second
 		 * @param b speed of the left wheel, in cemtimeters per second
 		 */
-		   Motor.A.setSpeed((int) Lwheel_amt_per_cm*a);
-		   Motor.B.setSpeed((int) Rwheel_amt_per_cm*b);
+		   Motor.A.setSpeed((int) a);
+		   Motor.B.setSpeed((int) b);
 	}
 
 	public float smooth_theta(){
