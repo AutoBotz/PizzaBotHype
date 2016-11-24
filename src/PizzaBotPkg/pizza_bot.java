@@ -23,10 +23,6 @@ public class pizza_bot {
 	public static float house_distance = 10; // WE NEED TO MEASURE THIS
 	public static int house_count = 0;
 	public static int house_edge = 0;
-<<<<<<< HEAD
-	public static int house_desired = 0;
-=======
->>>>>>> origin/master
 
 	// Mission stage keep track of what part of the misson we are on
 	// So the while loop can be operated at high frequency and we can record location or whatever
@@ -35,14 +31,9 @@ public class pizza_bot {
 	//       0              1                 2                 3                  4                5
 	// Initialization    Take Pizza     Obstacle Avoid       Find Street        Find House         Return
 
-<<<<<<< HEAD
 	public static int mission_stage = 0;
 
 	public static int oval_desired = 0;
-=======
-	public static int mission_stage = 2;
->>>>>>> origin/master
-
 	public static int house_desired = 3;
 	public static int side_of_road = 0;
 	public static int pizza_option = 0;
@@ -67,7 +58,6 @@ public class pizza_bot {
 
 	    	// End Exit code
 
-<<<<<<< HEAD
 				if (mission_stage == 0){
 	    		UI.println("Start input parameters");
 					pizza_option = UI.input_pizza();
@@ -77,8 +67,6 @@ public class pizza_bot {
 	    		mission_stage = 1;
 	    	}
 
-=======
->>>>>>> origin/master
 	    	//UI.println(" "+ robot.avg_ping());
 
 	    	if (mission_stage == 1){
