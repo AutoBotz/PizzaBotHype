@@ -31,8 +31,8 @@ public class drive_control {
 
 	public static double pi = Math.PI;
 
-	public double X ;
-	public double Y ;
+	public double X = 0.0;
+	public double Y = 0.0;
 
 	// Programmatics
 	public static EV3GyroSensor gyro;
@@ -77,12 +77,15 @@ public class drive_control {
 
 	public void move_to_Point_PID_SONIC(int x, int y, int speed){
 		// Theta in radians
-		this.set_speed(speed, speed);
+		set_speed(speed, speed);
 
 		// Set the current heading as the desired orientation
-		double angle = desired_Orientation (x,y);
+		double angle = desired_Orientation(x,y);
+		System.out.println(angle);
 		double distance = 0;
-
+		spotTurn_gyro((int)angle);
+		
+		System.out.println(theta());
 		double error = (double)(theta() - angle);
 		// Integral and derivative terms
 		double integral = 0;
@@ -90,21 +93,27 @@ public class drive_control {
 
 		// proportional constants
 		double kp = 0.8;
-		double kd = 1;
-		double ki = 1;
-
+		
 		// While loop for constant
-		while (abs(X - x) < 3 && abs(Y - y) < 3){
-			atacho = motor.A.getTachoCount();
-			btacho = motor.b.getTachoCount();
+		while (Math.abs(X - x) > 3 || Math.abs(Y - y) > 3){
+			
+			if (Button.ESCAPE.isDown()) {
+		    	Motor.A.flt();
+		    	Motor.B.flt();
+		    	Delay.msDelay(1000);
+		       	if (Button.ESCAPE.isDown()){break;}
+		    	}
+			
+			int atacho = Motor.A.getTachoCount();
+			int btacho = Motor.B.getTachoCount();
 
 			// If there is an obstical, call avoidance routine
-			if (this.ping() < 5){
+			if (ping() < 15){
 				object_avoid();
-				angle = desired_Orientation (x,y);
+				angle = desired_Orientation(x,y);
 				spotTurn_gyro((int)angle);
-				atacho = motor.A.getTachoCount();
-				btacho = motor.b.getTachoCount();
+				atacho = Motor.A.getTachoCount();
+				btacho = Motor.B.getTachoCount();
 			}
 
 			error = (double)(theta() - angle);
@@ -113,13 +122,16 @@ public class drive_control {
 			if (diff > speed ){
 				diff = speed;
 			}
+			System.out.println(diff);
 
 			// Update based on PID
 			set_speed((int)(speed + diff), (int)(speed - diff));
+			Motor.A.forward();
+			Motor.B.forward();
 
 			Delay.msDelay(50);
 			// Get tacho counts
-			distance = ((motor.A.getTachoCount() - atacho) + (motor.B.getTachoCount() - btacho))*pi*Rwheel_distance_full_rev;
+			distance = ((Motor.A.getTachoCount() - atacho) + (Motor.B.getTachoCount() - btacho))*pi*Rwheel_distance_full_rev;
 
 			// Update position traveled
 			X += distance*Math.sin(angle);
@@ -127,14 +139,14 @@ public class drive_control {
 		}
 	}
 
-	public static void object_avoid(){
+	public void object_avoid(){
 		// Avoid object by turning right and
 		// traveling 20 cm
 		spotTurn_gyro((int)(theta() + 90));
 		forward(20, 150);
 	}
 
-	public static double desired_Orientation (int x, int y){
+	public double desired_Orientation (int x, int y){
 		// Set angle taking into account boundary cases
 
 		double angle = (180*Math.atan((y-Y)/(x-X))/pi);
@@ -243,11 +255,12 @@ public class drive_control {
 				set_speed((int)(speed+50), (int)(speed+50));
 
 				if ((theta() - angGoal) > 0) {
-					Motor.A.backward();
-					Motor.B.forward();
-				} else {
 					Motor.A.forward();
 					Motor.B.backward();
+				} else {
+					Motor.A.backward();
+					Motor.B.forward();
+
 				}
 			}
 
