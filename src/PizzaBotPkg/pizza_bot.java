@@ -27,14 +27,7 @@ public class pizza_bot {
 		
 		robot.init_pos(0.0, 0.0);
 		robot.set_dims(4, 4, 12);
-	    move_to_point(0,10, robot);
-	    move_to_point(10,10, robot);
-	    move_to_point(10,0, robot);
-	    move_to_point(0, 0, robot);
-		UI.println("Current Pos (" + (int)robot.X + " , " + (int)robot.Y +" , " +(int)robot.theta() +")");
-	    
-	    robot.spotTurn_gyro(0);
-	    robot.flt();
+
 	    
 	    while(true){
 	    	
@@ -43,11 +36,24 @@ public class pizza_bot {
 	    	Motor.A.flt();
 	    	Motor.B.flt();
 	    	Delay.msDelay(1000);
+	       	if (Button.ESCAPE.isDown()){break;}
 	    	}
 
-	    	if (Button.ESCAPE.isDown()){break;}
 	    	// End Exit code
-
+	    	if (Button.ENTER.isDown()) {
+				    move_to_point(0,10, robot);
+				    Delay.msDelay(2000);
+				    move_to_point(10,10, robot);
+				    Delay.msDelay(2000);
+				    move_to_point(15,20, robot);
+				    Delay.msDelay(2000);
+				    move_to_point(5, 5, robot);
+				    Delay.msDelay(2000);
+				    move_to_point(0, 0, robot);
+					UI.println("Current Pos (" + (int)robot.X + " , " + (int)robot.Y +" , " +(int)robot.theta() +")");
+				    
+				    robot.spotTurn_gyro(0);
+			    }
 	    	}
 	}
 
@@ -65,19 +71,37 @@ public class pizza_bot {
 		 * @param wheel_width The width of the wheels
 		 */
 		//UI.println("(" + (int)robot.X + " , " + (int)robot.Y +" , " +(int)robot.theta() +")");
-
 		double delta_angle = (180*Math.atan((y-robot.Y)/(x-robot.X))/pi);
+		if (x-robot.X==0){
+			   if (y-robot.Y >=0){
+			    delta_angle = 0;
+			   }
+			   else{
+			    delta_angle = -180;
+			   }
+
+		} else if (y-robot.Y==0) {
+			   if (x-robot.X >=0){
+				    delta_angle = 90;
+				   }
+				   else{
+				    delta_angle = -90;
+			}
+
+		} else {
+			if ((y-robot.Y)<0){
+				if ((x-robot.X)<0){
+					delta_angle = -90 - delta_angle;
+				}
+				else
+					delta_angle =  90 - delta_angle;
+			}
+		}
+		
+
 		double distance = Math.sqrt((y-robot.Y)*(y-robot.Y) + (x-robot.X)*(x-robot.X));
 
 
-		// driving reverse
-		if ((y-robot.Y)<0){
-			if ((x-robot.X)<0){
-				delta_angle = -90 - delta_angle;
-			}
-			else
-				delta_angle =  90 - delta_angle;
-		}
 		
 		UI.println("" + delta_angle);
 		
