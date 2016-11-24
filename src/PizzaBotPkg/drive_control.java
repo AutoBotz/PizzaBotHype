@@ -75,9 +75,6 @@ public class drive_control {
 		X = x_init;
 		Y = y_init;
 	}
-	public void forward_with_sonic(int distance, int speed){
-	}
-
 
 	public void forward(int distance, int speed){
 		/**
@@ -92,11 +89,13 @@ public class drive_control {
 		this.set_speed(speed, speed);
 
 		double angle = (double)theta() %360;
-		angle = (angle * pi) /180;
+		angle = (angle/360) * 2 * pi;
 
-		X += distance * Math.cos(angle);
-		Y += distance * Math.sin(angle);
+		double x = distance*Math.sin(angle);
+		double y = distance*Math.cos(angle);
 
+		X += x;
+		Y += y;
 
 		double A_ang = Motor.A.getTachoCount();
 		double B_ang = Motor.B.getTachoCount();
@@ -132,8 +131,7 @@ public class drive_control {
 		 Motor.B.rotateTo(B_ang);
 	}
 
-	public void spotTurn_gyro(int angturn){
-		/**
+	public void spotTurn_gyro(int angturn){		/**
 		 * This function let robot rotate without moving translationally.
 		 * Gyroscope angle reading is used for counting of rotation
 		 *

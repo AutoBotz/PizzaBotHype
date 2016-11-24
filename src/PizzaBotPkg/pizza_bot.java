@@ -24,13 +24,13 @@ public class pizza_bot {
 	public static void main(String[] args) {
 		robot.gyro_init(1);
 		robot.sonic_init(2);
-		
+
 		robot.init_pos(0.0, 0.0);
 		robot.set_dims(4, 4, 12);
 
-	    
+
 	    while(true){
-	    	
+
 	    	// Exit code
 	    	if (Button.ESCAPE.isDown()) {
 	    	Motor.A.flt();
@@ -41,17 +41,9 @@ public class pizza_bot {
 
 	    	// End Exit code
 	    	if (Button.ENTER.isDown()) {
-				    move_to_point(0,10, robot);
-				    Delay.msDelay(2000);
-				    move_to_point(10,10, robot);
-				    Delay.msDelay(2000);
-				    move_to_point(15,20, robot);
-				    Delay.msDelay(2000);
-				    move_to_point(5, 5, robot);
-				    Delay.msDelay(2000);
-				    move_to_point(0, 0, robot);
-					UI.println("Current Pos (" + (int)robot.X + " , " + (int)robot.Y +" , " +(int)robot.theta() +")");
-				    
+				    move_to_point(0,150, robot);
+						UI.println("Current Pos (" + (int)robot.X + " , " + (int)robot.Y +" , " +(int)robot.theta() +")");
+
 				    robot.spotTurn_gyro(0);
 			    }
 	    	}
@@ -71,46 +63,69 @@ public class pizza_bot {
 		 * @param wheel_width The width of the wheels
 		 */
 		//UI.println("(" + (int)robot.X + " , " + (int)robot.Y +" , " +(int)robot.theta() +")");
-		double delta_angle = (180*Math.atan((y-robot.Y)/(x-robot.X))/pi);
+
+		double delta_angle = desired_Orientation(x,y,robot);
+		double distance = Math.sqrt((y-robot.Y)*(y-robot.Y) + (x-robot.X)*(x-robot.X));
+
+		UI.println("" + delta_angle);
+
+		robot.spotTurn_gyro((int)delta_angle);
+
+		// Check for obstical
+		for (int i = 0; i < (int)distance; i++) {
+			float obj_dist = robot.ping();
+			if (obj_dist < 10) {
+				this.object_avoid();
+				move_to_point(x,y,robot);
+				break;
+			} else {
+				robot.forward(1, 100);
+			}
+		}
+
+	}
+
+	public static int object_avoid(){
+		// Avoid object by turning right and
+		// traveling 20 cm
+		robot.spotTurn_gyro(robot.theta() + 90);
+		robot.forward(20, 150);
+	}
+
+	public static double desired_Orientation(int x, int y, drive_control robot){
+		// Set angle taking into account boundary cases
+
+		double angle = (180*Math.atan((y-robot.Y)/(x-robot.X))/pi);
+
+		// straight up and down y axis
 		if (x-robot.X==0){
 			   if (y-robot.Y >=0){
-			    delta_angle = 0;
+			    return angle = 0;
 			   }
 			   else{
-			    delta_angle = -180;
+			    return angle = -180;
 			   }
 
+	  // straigh up and down x axis
 		} else if (y-robot.Y==0) {
 			   if (x-robot.X >=0){
-				    delta_angle = 90;
+				    return angle = 90;
 				   }
 				   else{
-				    delta_angle = -90;
+				    return angle = -90;
 			}
 
+		// angles behind robot
 		} else {
 			if ((y-robot.Y)<0){
 				if ((x-robot.X)<0){
-					delta_angle = -90 - delta_angle;
+					return angle = -90 - angle;
 				}
 				else
-					delta_angle =  90 - delta_angle;
+					return angle =  90 - angle;
 			}
+			else {return angle}
 		}
-		
-
-		double distance = Math.sqrt((y-robot.Y)*(y-robot.Y) + (x-robot.X)*(x-robot.X));
-
-
-		
-		UI.println("" + delta_angle);
-		
-		robot.spotTurn_gyro((int)delta_angle);
-
-		System.out.println("going foreward");
-
-		robot.forward((int)distance, 100);
-
 	}
 
 	public static int obstacle_encounter(float[] distance_array){
