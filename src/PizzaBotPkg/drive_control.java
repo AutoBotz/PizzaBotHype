@@ -131,7 +131,7 @@ public class drive_control {
 		 Motor.B.rotateTo(B_ang);
 	}
 
-	public void spotTurn_gyro(int angturn){		/**
+	public void spotTurn_gyro(float angturn){		/**
 		 * This function let robot rotate without moving translationally.
 		 * Gyroscope angle reading is used for counting of rotation
 		 *
@@ -190,8 +190,8 @@ public class drive_control {
 		 *
 		 * Returns nothing
 		 *
-		 * @param a speed of the left wheel, in cemtimeters per second
-		 * @param b speed of the left wheel, in cemtimeters per second
+		 * @param a speed of the left wheel, in degrees per second
+		 * @param b speed of the left wheel, in degrees per second
 		 */
 		   Motor.A.setSpeed((int) a);
 		   Motor.B.setSpeed((int) b);

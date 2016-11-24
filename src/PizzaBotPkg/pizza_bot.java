@@ -20,6 +20,22 @@ public class pizza_bot {
 	public static drive_control robot = new drive_control();
 	public static user_interface UI = new user_interface();
 	public static double pi = Math.PI;
+	public static float house_distance = 10; // WE NEED TO MEASURE THIS
+	public static int house_count = 0;
+	public static int house_edge = 0;
+	
+	// Mission stage keep track of what part of the misson we are on
+	// So the while loop can be operated at high frequency and we can record location or whatever
+	// Mission stages:
+	//
+	//       0              1                 2                 3                  4                5
+	// Initialization    Take Pizza     Obstacle Avoid       Find Street        Find House         Return
+	
+	public static int mission_stage = 0;
+	
+	public static int house_desired = 3;
+	public static int side_of_road = 0;
+	
 
 	public static void main(String[] args) {
 		robot.gyro_init(1);
@@ -40,28 +56,39 @@ public class pizza_bot {
 	    	}
 
 	    	// End Exit code
+	    	
 	    	if (Button.ENTER.isDown()) {
 				    move_to_point(0,150, robot);
 						UI.println("Current Pos (" + (int)robot.X + " , " + (int)robot.Y +" , " +(int)robot.theta() +")");
 
 				    robot.spotTurn_gyro(0);
 			    }
+	    	
+	    	if (mission_stage == 3){
+	    		
+	    		// left or right side of the street, rotate ultrasonic to align
+	    		if (side_of_road == 1){
+		    		Motor.C.rotateTo(-90);
+	    		} if (side_of_road == 2){
+		    		Motor.C.rotateTo(90);
+	    		}
+	    		
+	    		// Drive forward to avoid the debris at the start
+	    		robot.forward(10, 150);
+	    	}
+	    	
+	    	if (mission_stage == 4){
+	    		while (count_house() < 3){
+	    			robot.forward(2, 150);
+	    		}
+	    		
+	    		drop_pizza();
+	    	}
+	    	
 	    	}
 	}
 
 	public static void move_to_point(int x, int y, drive_control robot) {
-		/**
-		 * This function accept the physical dimensions of the robot, and computes the corrections factors
-		 * for functions such as rotation, turn and forward driving to allow user to input reasonable numbers
-		 * into the control functions. Such as centimeters and centimeters per second.
-		 *
-		 * Returns nothing
-		 *
-		 * @param left_diameter Diameter of the left wheel
-		 * @param right_diameter Diameter of the right wheel
-		 * @param wheel_base The inner distance between two wheels
-		 * @param wheel_width The width of the wheels
-		 */
 		//UI.println("(" + (int)robot.X + " , " + (int)robot.Y +" , " +(int)robot.theta() +")");
 
 		double delta_angle = desired_Orientation(x,y,robot);
@@ -75,7 +102,7 @@ public class pizza_bot {
 		for (int i = 0; i < (int)distance; i++) {
 			float obj_dist = robot.ping();
 			if (obj_dist < 10) {
-				this.object_avoid();
+				object_avoid();
 				move_to_point(x,y,robot);
 				break;
 			} else {
@@ -85,7 +112,7 @@ public class pizza_bot {
 
 	}
 
-	public static int object_avoid(){
+	public static void object_avoid(){
 		// Avoid object by turning right and
 		// traveling 20 cm
 		robot.spotTurn_gyro(robot.theta() + 90);
@@ -124,7 +151,7 @@ public class pizza_bot {
 				else
 					return angle =  90 - angle;
 			}
-			else {return angle}
+			else return angle;
 		}
 	}
 
@@ -149,4 +176,34 @@ public class pizza_bot {
 		}
 		return (int)(max_direction*22.5 - 90);
 	}
+
+	public static int count_house(){
+		/**
+		 * This function returns the current house number we are at
+		 * 1, 2, 3 will be returned if we are in front of a house
+		 * 0 will be returned if we are not in front of a house
+		 *
+		 */
+		
+		if(robot.avg_ping() > (house_distance + 3)){
+			// no house is in sight
+			if (house_edge == 1){
+				// The robot was at a house in the last iteration, not anymore
+				house_edge = 0;
+			}
+			
+			// return zero, no house
+			return 0;
+		} else {
+			// ultrasonic see object that is within distance of a house, so there is probably one
+			if (house_edge == 0){
+				// The robot didnt see a house in the last iteration, now there is house
+				house_count += 1;
+				house_edge = 1;
+			}
+			return house_count;
+		}
+	}
+
+
 }
