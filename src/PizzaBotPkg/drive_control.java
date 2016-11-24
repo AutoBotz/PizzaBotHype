@@ -76,7 +76,7 @@ public class drive_control {
 		Y = y_init;
 	}
 
-	public void forward(int distance, int speed){
+	public void forward(double distance, int speed){
 		/**
 		 * This function handles driving forward of robot
 		 *
@@ -131,7 +131,7 @@ public class drive_control {
 		 Motor.B.rotateTo(B_ang);
 	}
 
-	public void spotTurn_gyro(int angturn){		/**
+	public void spotTurn_gyro(float angturn){		/**
 		 * This function let robot rotate without moving translationally.
 		 * Gyroscope angle reading is used for counting of rotation
 		 *
@@ -190,8 +190,8 @@ public class drive_control {
 		 *
 		 * Returns nothing
 		 *
-		 * @param a speed of the left wheel, in cemtimeters per second
-		 * @param b speed of the left wheel, in cemtimeters per second
+		 * @param a speed of the left wheel, in degrees per second
+		 * @param b speed of the left wheel, in degrees per second
 		 */
 		   Motor.A.setSpeed((int) a);
 		   Motor.B.setSpeed((int) b);
@@ -284,10 +284,10 @@ public class drive_control {
 		double sum = 0.0;
 
 
-		for (int i = 0; i < 5; i++)
+		for (int i = 0; i < 10; i++)
 			sum += this.ping();
 
-		return (float) sum / 5;
+		return (float) sum / 10;
 	}
 
 	public void getCoordinate(int angturn, int speed){
