@@ -70,13 +70,106 @@ public class drive_control {
 
 	}
 
-
 	public void init_pos(double x_init, double y_init){
 		X = x_init;
 		Y = y_init;
 	}
-	public void forward_PID_SONIC(double distance, int speed){
-		
+
+	public void move_to_Point_PID_SONIC(int x, int y, int speed){
+		// Theta in radians
+		this.set_speed(speed, speed);
+
+		// Set the current heading as the desired orientation
+		double angle = desired_Orientation (x,y);
+		double distance = 0;
+
+		double error = (double)(theta() - angle);
+		// Integral and derivative terms
+		double integral = 0;
+		double derivative = 0;
+
+		// proportional constants
+		double kp = 0.8;
+		double kd = 1;
+		double ki = 1;
+
+		// While loop for constant
+		while (abs(X - x) < 3 && abs(Y - y) < 3){
+			atacho = motor.A.getTachoCount();
+			btacho = motor.b.getTachoCount();
+
+			// If there is an obstical, call avoidance routine
+			if (this.ping() < 5){
+				object_avoid();
+				angle = desired_Orientation (x,y);
+				spotTurn_gyro((int)angle);
+				atacho = motor.A.getTachoCount();
+				btacho = motor.b.getTachoCount();
+			}
+
+			error = (double)(theta() - angle);
+			double diff = kp * error;
+
+			if (diff > speed ){
+				diff = speed;
+			}
+
+			// Update based on PID
+			set_speed((int)(speed + diff), (int)(speed - diff));
+
+			Delay.msDelay(50);
+			// Get tacho counts
+			distance = ((motor.A.getTachoCount() - atacho) + (motor.B.getTachoCount() - btacho))*pi*Rwheel_distance_full_rev;
+
+			// Update position traveled
+			X += distance*Math.sin(angle);
+			Y += distance*Math.cos(angle);
+		}
+	}
+
+	public static void object_avoid(){
+		// Avoid object by turning right and
+		// traveling 20 cm
+		spotTurn_gyro((int)(theta() + 90));
+		forward(20, 150);
+	}
+
+	public static double desired_Orientation (int x, int y){
+		// Set angle taking into account boundary cases
+
+		double angle = (180*Math.atan((y-Y)/(x-X))/pi);
+
+		// straight up and down y axis
+		if (x-X==0){
+			   if (y-Y >=0){
+			    return angle = 0;
+			   }
+			   else{
+			    return angle = -180;
+			   }
+
+	  // straigh up and down x axis
+		} else if (y-Y==0) {
+			   if (x-X >=0){
+				    return angle = 90;
+				   }
+				   else{
+				    return angle = -90;
+			}
+
+		// angles behind robot
+		} else {
+			if ((y-Y)<0){
+				if ((x-X)<0){
+					return angle = -90 - angle;
+				}
+				else
+					return angle =  90 - angle;
+			}
+			else {
+				return angle;
+			}
+		}
 	}
 
 	public void forward(double distance, int speed){
