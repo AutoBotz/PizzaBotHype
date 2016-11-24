@@ -23,20 +23,23 @@ public class pizza_bot {
 	public static float house_distance = 10; // WE NEED TO MEASURE THIS
 	public static int house_count = 0;
 	public static int house_edge = 0;
-	
+	public static int house_desired = 0;
+
 	// Mission stage keep track of what part of the misson we are on
 	// So the while loop can be operated at high frequency and we can record location or whatever
 	// Mission stages:
 	//
 	//       0              1                 2                 3                  4                5
 	// Initialization    Take Pizza     Obstacle Avoid       Find Street        Find House         Return
-	
-	public static int mission_stage = 2;
-	
+
+	public static int mission_stage = 0;
+
+	public static int oval_desired = 0;
+
 	public static int house_desired = 3;
 	public static int side_of_road = 0;
 	public static int pizza_option = 0;
-	
+
 
 	public static void main(String[] args) {
 		robot.sonic_init(2);
@@ -56,9 +59,18 @@ public class pizza_bot {
 	    	}
 
 	    	// End Exit code
-	    	
+
+				if (mission_stage == 0){
+	    		UI.println("Start input parameters");
+					pizza_option = UI.input_pizza();
+					oval_desired = UI.input_oval();
+					side_of_road = UI.input_roadside();
+					house_desired = UI.input_house();
+	    		mission_stage = 1;
+	    	}
+
 	    	//UI.println(" "+ robot.avg_ping());
-	    	
+
 	    	if (mission_stage == 1){
 	    		pickup_pizza();
 	    		mission_stage = 2;
@@ -76,32 +88,32 @@ public class pizza_bot {
 					    move_to_point(-35,200, robot);
 					    UI.println("(" + (int)robot.X + " , " + (int)robot.Y +" , " +(int)robot.theta() +")");
 					    Delay.msDelay(2000);
-	
+
 					    robot.spotTurn_gyro(0);
 				    }
 	    	}
-	    	
+
 	    	if (mission_stage == 3){
-	    		
+
 	    		// left or right side of the street, rotate ultrasonic to align
 	    		if (side_of_road == 1){
 		    		Motor.C.rotateTo(-90);
 	    		} if (side_of_road == 2){
 		    		Motor.C.rotateTo(90);
 	    		}
-	    		
+
 	    		// Drive forward to avoid the debris at the start
 	    		robot.forward(10, 150);
 	    	}
-	    	
+
 	    	if (mission_stage == 4){
-	    		while (count_house() < 3){
+	    		while (count_house() < house_desired){
 	    			robot.forward(2, 150);
 	    		}
-	    		
+
 	    		drop_pizza();
 	    	}
-	    	
+
 	    	}
 	}
 
@@ -203,14 +215,14 @@ public class pizza_bot {
 		 * 0 will be returned if we are not in front of a house
 		 *
 		 */
-		
+
 		if(robot.avg_ping() > (house_distance + 3)){
 			// no house is in sight
 			if (house_edge == 1){
 				// The robot was at a house in the last iteration, not anymore
 				house_edge = 0;
 			}
-			
+
 			// return zero, no house
 			return 0;
 		} else {
@@ -228,7 +240,7 @@ public class pizza_bot {
 		robot.forward(1.1, 150);
 		if (pizza_option == 1){
 			robot.spotTurn(90, 150);
-			
+
 		} else if (pizza_option == 2){
 			robot.spotTurn(270, 150);
 		}
@@ -237,7 +249,7 @@ public class pizza_bot {
 		robot.forward(-5,150);
 		Motor.D.rotateTo(90);
 	}
-	
+
 	public static void drop_pizza(){
 		if (side_of_road == 1){
 			robot.spotTurn(90, 150);
@@ -248,6 +260,6 @@ public class pizza_bot {
 		Motor.D.rotateTo(-25);
 		Delay.msDelay(2000);
 		Motor.D.rotateTo(90);
-		
+
 	}
 }
