@@ -31,7 +31,7 @@ public class pizza_bot {
 	//       0              1                 2                 3                  4                5
 	// Initialization    Take Pizza     Obstacle Avoid       Find Street        Find House         Return
 	
-	public static int mission_stage = 0;
+	public static int mission_stage = 2;
 	
 	public static int house_desired = 3;
 	public static int side_of_road = 0;
@@ -39,7 +39,6 @@ public class pizza_bot {
 	
 
 	public static void main(String[] args) {
-		robot.gyro_init(1);
 		robot.sonic_init(2);
 
 		robot.init_pos(0.0, 0.0);
@@ -58,7 +57,7 @@ public class pizza_bot {
 
 	    	// End Exit code
 	    	
-	    	UI.println(" "+ robot.avg_ping());
+	    	//UI.println(" "+ robot.avg_ping());
 	    	
 	    	if (mission_stage == 1){
 	    		pickup_pizza();
@@ -67,8 +66,16 @@ public class pizza_bot {
 
 	    	if (mission_stage == 2){
 		    	if (Button.ENTER.isDown()) {
-					    move_to_point(0,150, robot);
-							UI.println("Current Pos (" + (int)robot.X + " , " + (int)robot.Y +" , " +(int)robot.theta() +")");
+		    			robot.gyro_init(1);
+					    move_to_point(0,200, robot);
+					    UI.println("(" + (int)robot.X + " , " + (int)robot.Y +" , " +(int)robot.theta() +")");
+					    Delay.msDelay(2000);
+					    move_to_point(35,200, robot);
+					    UI.println("(" + (int)robot.X + " , " + (int)robot.Y +" , " +(int)robot.theta() +")");
+					    Delay.msDelay(2000);
+					    move_to_point(-35,200, robot);
+					    UI.println("(" + (int)robot.X + " , " + (int)robot.Y +" , " +(int)robot.theta() +")");
+					    Delay.msDelay(2000);
 	
 					    robot.spotTurn_gyro(0);
 				    }
