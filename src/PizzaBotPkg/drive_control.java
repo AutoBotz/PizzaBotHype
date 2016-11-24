@@ -89,13 +89,11 @@ public class drive_control {
 		this.set_speed(speed, speed);
 
 		double angle = (double)theta() %360;
-		angle = (angle/360) * 2 * pi;
+		angle = (angle * pi) /180;
 
-		double x = distance*Math.cos(angle);
-		double y = distance*Math.sin(angle);
+		X += distance * Math.cos(angle);
+		Y += distance * Math.sin(angle);
 
-		X += x;
-		Y += y;
 
 		double A_ang = Motor.A.getTachoCount();
 		double B_ang = Motor.B.getTachoCount();
@@ -131,7 +129,8 @@ public class drive_control {
 		 Motor.B.rotateTo(B_ang);
 	}
 
-	public void spotTurn_gyro(int angturn){		/**
+	public void spotTurn_gyro(int angturn){
+		/**
 		 * This function let robot rotate without moving translationally.
 		 * Gyroscope angle reading is used for counting of rotation
 		 *
