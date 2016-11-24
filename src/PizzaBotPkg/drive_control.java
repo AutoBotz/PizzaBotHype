@@ -75,7 +75,10 @@ public class drive_control {
 		X = x_init;
 		Y = y_init;
 	}
-	
+	public void forward_with_sonic(int distance, int speed){
+	}
+
+
 	public void forward(int distance, int speed){
 		/**
 		 * This function handles driving forward of robot
@@ -140,10 +143,10 @@ public class drive_control {
 		 * @param speed speed of the wheels in centimeter per second
 		 */
 			double K = 0.8;
-			double angGoal = this.theta() + angturn; // Determine the goal angle to turn to
+			double angGoal =  angturn; // Determine the goal angle to turn to
 			while (Math.abs(theta() - angGoal) > 0.5) {
-				double speed = K * Math.abs(this.theta() - angturn);
-				set_speed((int)(speed+30), (int)(speed+30));
+				double speed = K * Math.abs(this.theta() - angGoal);
+				set_speed((int)(speed+50), (int)(speed+50));
 
 				if ((theta() - angGoal) > 0) {
 					Motor.A.backward();
@@ -192,8 +195,8 @@ public class drive_control {
 		 * @param a speed of the left wheel, in cemtimeters per second
 		 * @param b speed of the left wheel, in cemtimeters per second
 		 */
-		   Motor.A.setSpeed((int) Lwheel_amt_per_cm*a);
-		   Motor.B.setSpeed((int) Rwheel_amt_per_cm*b);
+		   Motor.A.setSpeed((int) a);
+		   Motor.B.setSpeed((int) b);
 	}
 
 	public float smooth_theta(){
@@ -264,7 +267,7 @@ public class drive_control {
 
 	public float theta() {
 		gyro.getAngleMode().fetchSample(gyro_sample,0);
-		return gyro_sample[0] %360;
+		return gyro_sample[0] % 360;
 	}
 
 	public float ping(){
