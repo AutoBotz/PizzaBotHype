@@ -32,7 +32,9 @@ public class pizza_bot {
 	// Initialization    Take Pizza     Obstacle Avoid       Find Street        Find House         Return
 	
 	public static int mission_stage = 2;
-	
+
+
+	public static int oval_desired = 0;
 	public static int house_desired = 3;
 	public static int side_of_road = 0;
 	public static int pizza_option = 0;
@@ -60,8 +62,6 @@ public class pizza_bot {
 	       	if (Button.ESCAPE.isDown()){break;}
 	    	}
 
-	    	// End Exit code
-	    	
 	    	//UI.println(" "+ robot.avg_ping());
 	    	
 	    	if (mission_stage == 1){
@@ -90,7 +90,7 @@ public class pizza_bot {
 	    	}
 	    	
 	    	if (mission_stage == 4){
-	    		while (count_house() < 3){
+	    		while (count_house() < house_desired){
 	    			robot.forward(2, 150);
 	    		}
 	    		
