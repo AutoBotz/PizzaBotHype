@@ -75,7 +75,7 @@ public class drive_control {
 		X = x_init;
 		Y = y_init;
 	}
-	
+
 	public void forward(int distance, int speed){
 		/**
 		 * This function handles driving forward of robot
@@ -91,8 +91,8 @@ public class drive_control {
 		double angle = (double)theta() %360;
 		angle = (angle/360) * 2 * pi;
 
-		double x = distance*Math.cos(angle);
-		double y = distance*Math.sin(angle);
+		double x = distance*Math.sin(angle);
+		double y = distance*Math.cos(angle);
 
 		X += x;
 		Y += y;
@@ -265,7 +265,7 @@ public class drive_control {
 
 	public float theta() {
 		gyro.getAngleMode().fetchSample(gyro_sample,0);
-		return gyro_sample[0] %360;
+		return gyro_sample[0] % 360;
 	}
 
 	public float ping(){
