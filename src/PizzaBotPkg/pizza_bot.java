@@ -75,7 +75,7 @@ public class pizza_bot {
 		for (int i = 0; i < (int)distance; i++) {
 			float obj_dist = robot.ping();
 			if (obj_dist < 10) {
-				this.object_avoid();
+				object_avoid();
 				move_to_point(x,y,robot);
 				break;
 			} else {
@@ -85,14 +85,14 @@ public class pizza_bot {
 
 	}
 
-	public static int object_avoid(){
+	public static void object_avoid(){
 		// Avoid object by turning right and
 		// traveling 20 cm
-		robot.spotTurn_gyro(robot.theta() + 90);
+		robot.spotTurn_gyro((int)(robot.theta() + 90));
 		robot.forward(20, 150);
 	}
 
-	public static double desired_Orientation(int x, int y, drive_control robot){
+	public static double desired_Orientation (int x, int y, drive_control robot){
 		// Set angle taking into account boundary cases
 
 		double angle = (180*Math.atan((y-robot.Y)/(x-robot.X))/pi);
@@ -124,7 +124,9 @@ public class pizza_bot {
 				else
 					return angle =  90 - angle;
 			}
-			else {return angle}
+			else {
+				return angle;
+			}
 		}
 	}
 
