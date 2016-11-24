@@ -35,6 +35,7 @@ public class pizza_bot {
 	
 	public static int house_desired = 3;
 	public static int side_of_road = 0;
+	public static int pizza_option = 0;
 	
 
 	public static void main(String[] args) {
@@ -57,12 +58,21 @@ public class pizza_bot {
 
 	    	// End Exit code
 	    	
-	    	if (Button.ENTER.isDown()) {
-				    move_to_point(0,150, robot);
-						UI.println("Current Pos (" + (int)robot.X + " , " + (int)robot.Y +" , " +(int)robot.theta() +")");
+	    	UI.println(" "+ robot.avg_ping());
+	    	
+	    	if (mission_stage == 1){
+	    		pickup_pizza();
+	    		mission_stage = 2;
+	    	}
 
-				    robot.spotTurn_gyro(0);
-			    }
+	    	if (mission_stage == 2){
+		    	if (Button.ENTER.isDown()) {
+					    move_to_point(0,150, robot);
+							UI.println("Current Pos (" + (int)robot.X + " , " + (int)robot.Y +" , " +(int)robot.theta() +")");
+	
+					    robot.spotTurn_gyro(0);
+				    }
+	    	}
 	    	
 	    	if (mission_stage == 3){
 	    		
@@ -205,5 +215,30 @@ public class pizza_bot {
 		}
 	}
 
+	public static void pickup_pizza(){
+		robot.forward(1.1, 150);
+		if (pizza_option == 1){
+			robot.spotTurn(90, 150);
+			
+		} else if (pizza_option == 2){
+			robot.spotTurn(270, 150);
+		}
 
+		Motor.D.rotateTo(-10);
+		robot.forward(-5,150);
+		Motor.D.rotateTo(90);
+	}
+	
+	public static void drop_pizza(){
+		if (side_of_road == 1){
+			robot.spotTurn(90, 150);
+		} else if (side_of_road == 2){
+			robot.spotTurn(270, 150);
+		}
+
+		Motor.D.rotateTo(-25);
+		Delay.msDelay(2000);
+		Motor.D.rotateTo(90);
+		
+	}
 }

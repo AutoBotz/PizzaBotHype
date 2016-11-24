@@ -76,7 +76,7 @@ public class drive_control {
 		Y = y_init;
 	}
 
-	public void forward(int distance, int speed){
+	public void forward(double distance, int speed){
 		/**
 		 * This function handles driving forward of robot
 		 *
@@ -284,10 +284,10 @@ public class drive_control {
 		double sum = 0.0;
 
 
-		for (int i = 0; i < 5; i++)
+		for (int i = 0; i < 10; i++)
 			sum += this.ping();
 
-		return (float) sum / 5;
+		return (float) sum / 10;
 	}
 
 	public void getCoordinate(int angturn, int speed){
