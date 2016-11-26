@@ -17,17 +17,17 @@ import lejos.utility.Delay;
 */
 
 public class drive_control {
-	public float Lwheel_amt_per_cm = Float.NaN;
-	public float Lwheel_amt_full_rotation = Float.NaN;
-	public float Lwheel_amt_pivot_turn = Float.NaN;
-	public float Lwheel_distance_full_rev = Float.NaN;
-	public float Lwheel_center = Float.NaN;
+	public double Lwheel_amt_per_cm = Float.NaN;
+	public double Lwheel_amt_full_rotation = Float.NaN;
+	public double Lwheel_amt_pivot_turn = Float.NaN;
+	public double Lwheel_distance_full_rev = Float.NaN;
+	public double Lwheel_center = Float.NaN;
 
-	public float Rwheel_amt_per_cm = Float.NaN;
-	public float Rwheel_amt_full_rotation = Float.NaN;
-	public float Rwheel_amt_pivot_turn = Float.NaN;
-	public float Rwheel_distance_full_rev = Float.NaN;
-	public float Rwheel_center = Float.NaN;
+	public double Rwheel_amt_per_cm = Float.NaN;
+	public double Rwheel_amt_full_rotation = Float.NaN;
+	public double Rwheel_amt_pivot_turn = Float.NaN;
+	public double Rwheel_distance_full_rev = Float.NaN;
+	public double Rwheel_center = Float.NaN;
 
 	public static double pi = Math.PI;
 
@@ -47,7 +47,7 @@ public class drive_control {
 	// A is left wheel
 	// B is right wheel
 	// A,B forward make robot go forward
-	public void set_dims(float left_diameter, float right_diameter, float wheel_base){
+	public void set_dims(double left_diameter, double right_diameter, double wheel_base){
 		/**
 		 * This function accept the physical dimensions of the robot, and computes the corrections factors
 		 * for functions such as rotation, turn and forward driving to allow user to input reasonable numbers
@@ -81,11 +81,9 @@ public class drive_control {
 
 		// Set the current heading as the desired orientation
 		double angle = desired_Orientation(x,y);
-		System.out.println(angle);
+		System.out.println("ORIGINAL ANGLE " + angle);
 		double distance = 0;
 		spotTurn_gyro((int)angle);
-		
-		System.out.println(theta());
 		double error = (double)(theta() - angle);
 		// Integral and derivative terms
 		double integral = 0;
@@ -94,9 +92,11 @@ public class drive_control {
 		// proportional constants
 		double kp = 0.8;
 		
+		System.out.println("(" + X + "," + Y + ")");
 		// While loop for constant
 		while (Math.abs(X - x) > 3 || Math.abs(Y - y) > 3){
 			
+			System.out.println("(" + X + "," + Y + ")");
 			if (Button.ESCAPE.isDown()) {
 		    	Motor.A.flt();
 		    	Motor.B.flt();
@@ -108,10 +108,11 @@ public class drive_control {
 			int btacho = Motor.B.getTachoCount();
 
 			// If there is an obstical, call avoidance routine
-			if (ping() < 15){
+			if (avg_ping() < 5){
 				object_avoid();
 				angle = desired_Orientation(x,y);
 				spotTurn_gyro((int)angle);
+				System.out.println("NEW ANGLE " + angle);
 				atacho = Motor.A.getTachoCount();
 				btacho = Motor.B.getTachoCount();
 			}
@@ -122,34 +123,37 @@ public class drive_control {
 			if (diff > speed ){
 				diff = speed;
 			}
-			System.out.println(diff);
+			//System.out.println(diff);
 
 			// Update based on PID
 			set_speed((int)(speed + diff), (int)(speed - diff));
 			Motor.A.forward();
 			Motor.B.forward();
 
-			Delay.msDelay(50);
 			// Get tacho counts
-			distance = ((Motor.A.getTachoCount() - atacho) + (Motor.B.getTachoCount() - btacho))*pi*Rwheel_distance_full_rev;
-
+			distance = ((Motor.A.getTachoCount() - atacho) + (Motor.B.getTachoCount() - btacho))*0.5/Rwheel_amt_per_cm;
+			
+			//System.out.println(distance);
 			// Update position traveled
-			X += distance*Math.sin(angle);
-			Y += distance*Math.cos(angle);
+			X += distance*Math.sin(Math.toRadians(angle));
+			Y += distance*Math.cos(Math.toRadians(angle));
 		}
 	}
 
 	public void object_avoid(){
 		// Avoid object by turning right and
 		// traveling 20 cm
+		System.out.println("(" + (int)X + ", " + (int)Y +")");
 		spotTurn_gyro((int)(theta() + 90));
 		forward(20, 150);
+		System.out.println("(" + (int)X + ", " + (int)Y +")");
+		
 	}
 
 	public double desired_Orientation (int x, int y){
 		// Set angle taking into account boundary cases
 
-		double angle = (180*Math.atan((y-Y)/(x-X))/pi);
+		double angle = Math.toDegrees(Math.atan((y-Y)/(x-X)));
 
 		// straight up and down y axis
 		if (x-X==0){
@@ -173,10 +177,12 @@ public class drive_control {
 		} else {
 			if ((y-Y)<0){
 				if ((x-X)<0){
-					return angle = -90 - angle;
+					//return angle = -90 - angle;
+					return angle;
 				}
 				else
-					return angle =  90 - angle;
+					//return angle =  90 - angle;
+					return angle;
 			}
 			else {
 				return angle;

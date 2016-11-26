@@ -49,7 +49,7 @@ public class pizza_bot {
 		
 
 		robot.init_pos(0.0, 0.0);
-		robot.set_dims(4, 4, 12);
+		robot.set_dims(5.5, 5.5, 12);
 
 
 	    while(true){
@@ -71,7 +71,7 @@ public class pizza_bot {
 
 	    	if (mission_stage == 2){
 		    	if (Button.ENTER.isDown()) {
-		    		robot.move_to_Point_PID_SONIC(200,35, 150);
+		    		robot.move_to_Point_PID_SONIC(0,30, 150);
 				    robot.spotTurn_gyro(0);
 			    }
 	    	}
@@ -100,63 +100,8 @@ public class pizza_bot {
 	    	}
 	}
 
-	public static void move_to_point(int x, int y, drive_control robot) {
-		//UI.println("(" + (int)robot.X + " , " + (int)robot.Y +" , " +(int)robot.theta() +")");
 
-		double delta_angle = desired_Orientation(x,y,robot);
-		double distance = Math.sqrt((y-robot.Y)*(y-robot.Y) + (x-robot.X)*(x-robot.X));
-
-		UI.println("" + delta_angle);
-
-		robot.spotTurn_gyro((int)delta_angle);
-		robot.forward(distance, 100);
-
-	}
-
-	public static void object_avoid(){
-		// Avoid object by turning right and
-		// traveling 20 cm
-		robot.spotTurn_gyro((int)(robot.theta() + 90));
-		robot.forward(20, 150);
-	}
-
-	public static double desired_Orientation (int x, int y, drive_control robot){
-		// Set angle taking into account boundary cases
-
-		double angle = (180*Math.atan((y-robot.Y)/(x-robot.X))/pi);
-
-		// straight up and down y axis
-		if (x-robot.X==0){
-			   if (y-robot.Y >=0){
-			    return angle = 0;
-			   }
-			   else{
-			    return angle = -180;
-			   }
-
-	  // straigh up and down x axis
-		} else if (y-robot.Y==0) {
-			   if (x-robot.X >=0){
-				    return angle = 90;
-				   }
-				   else{
-				    return angle = -90;
-			}
-
-		// angles behind robot
-		} else {
-			if ((y-robot.Y)<0){
-				if ((x-robot.X)<0){
-					return angle = -90 - angle;
-				}
-				else
-					return angle =  90 - angle;
-			}
-			else {
-				return angle;
-			}
-		}
-	}
+	
 
 	public static int obstacle_encounter(float[] distance_array){
 		/**
