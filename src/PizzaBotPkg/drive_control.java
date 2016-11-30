@@ -85,6 +85,7 @@ public class drive_control {
 		double distance = 0;
 		spotTurn_gyro((int)angle);
 		double error = (double)(theta() - angle);
+		
 		// Integral and derivative terms
 		double integral = 0;
 		double derivative = 0;
@@ -93,8 +94,15 @@ public class drive_control {
 		double kp = 0.8;
 		
 		System.out.println("(" + X + "," + Y + ")");
+		
+		// x and y error term
+		double x_err = X - x;
+		double y_err = Y - y;
+		
+		
 		// While loop for constant
-		while (Math.abs(X - x) > 3 || Math.abs(Y - y) > 3){
+		while (true){
+			if (Math.abs(x_err) < 3 || Math.abs(y_err) < 3) break;
 			
 			System.out.println("(" + X + "," + Y + ")");
 			if (Button.ESCAPE.isDown()) {
@@ -107,9 +115,10 @@ public class drive_control {
 			int atacho = Motor.A.getTachoCount();
 			int btacho = Motor.B.getTachoCount();
 
-			// If there is an obstical, call avoidance routine
+			// If there is an obstacle, call avoidance routine
 			if (avg_ping() < 5){
 				object_avoid();
+				// object_avoid_follow(speed)
 				angle = desired_Orientation(x,y);
 				spotTurn_gyro((int)angle);
 				System.out.println("NEW ANGLE " + angle);
@@ -150,6 +159,71 @@ public class drive_control {
 		
 	}
 
+
+	public void object_avoid_follow(float speed){
+		// Avoid object by turning right and
+		// traveling 20 cm
+		System.out.println("(" + (int)X + ", " + (int)Y +")");
+		spotTurn_gyro((int)(theta() + 90));
+		Motor.C.rotateTo(90);
+		// double prev_ping = avg_ping();
+		double wall_sep = avg_ping();
+		
+		// Theta in radians
+		set_speed(speed, speed);
+
+		// Integral and derivative terms
+		double integral = 0;
+		double derivative = 0;
+		double error = 0;
+		double distance = 0;
+
+		// proportional constants
+		double kp = 0.8;
+		
+		System.out.println("(" + X + "," + Y + ")");
+		
+		
+		// While loop for constant
+		while (true){
+			if (Math.abs(avg_ping() - wall_sep) > 3){break;}
+			
+			System.out.println("(" + X + "," + Y + ")");
+			if (Button.ESCAPE.isDown()) {
+		    	Motor.A.flt();
+		    	Motor.B.flt();
+		    	Delay.msDelay(1000);
+		       	if (Button.ESCAPE.isDown()){break;}
+		    	}
+			
+			int atacho = Motor.A.getTachoCount();
+			int btacho = Motor.B.getTachoCount();
+
+			error = (double)(avg_ping() - wall_sep);
+			double diff = kp * error;
+
+			if (diff > speed ){
+				diff = speed;
+			}
+			//System.out.println(diff);
+
+			// Update based on PID
+			set_speed((int)(speed + diff), (int)(speed - diff));
+			Motor.A.forward();
+			Motor.B.forward();
+
+			// Get tacho counts
+			distance = ((Motor.A.getTachoCount() - atacho) + (Motor.B.getTachoCount() - btacho))*0.5/Rwheel_amt_per_cm;
+			
+			//System.out.println(distance);
+			// Update position traveled
+			float angle = theta();
+			X += distance*Math.sin(Math.toRadians(angle));
+			Y += distance*Math.cos(Math.toRadians(angle));
+		}
+		
+	}
+	
 	public double desired_Orientation (int x, int y){
 		// Set angle taking into account boundary cases
 
