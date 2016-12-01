@@ -92,15 +92,12 @@ public class drive_control {
 
 		System.out.println("(" + X + "," + Y + ")");
 
-		// x and y error term
-		double x_err = X - x;
-		double y_err = Y - y;
 
 
 		// While loop for constant
 		while (true){
-			if (Math.abs(x_err) < 3 || Math.abs(y_err) < 3) break;
-
+			if (Math.abs(X - x) < 3 && Math.abs(Y - y) < 3) break;
+			
 			System.out.println("(" + X + "," + Y + ")");
 			if (Button.ESCAPE.isDown()) {
 		    	Motor.A.flt();
@@ -167,14 +164,9 @@ public class drive_control {
 
 		System.out.println("(" + X + "," + Y + ")");
 
-		// x and y error term
-		double x_err = X - x;
-		double y_err = Y - y;
-
-
 		// While loop for constant
 		while (true){
-			if (Math.abs(x_err) < 3 || Math.abs(y_err) < 3) break;
+			if (Math.abs(X - x) < 3 || Math.abs(Y - y) < 3) break;
 
 			System.out.println("(" + X + "," + Y + ")");
 			if (Button.ESCAPE.isDown()) {
@@ -282,6 +274,8 @@ public class drive_control {
 			X += distance*Math.sin(Math.toRadians(angle));
 			Y += distance*Math.cos(Math.toRadians(angle));
 		}
+
+		this.forward(5,100);
 
 	}
 

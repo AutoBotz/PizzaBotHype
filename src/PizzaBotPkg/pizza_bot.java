@@ -28,18 +28,18 @@ public class pizza_bot {
 	// Record the absolute positions of various destinations here to call upon
 	
 	
-	public static final float[] pizza1_loc = {Pizza_X, Pizza_Y};
-	public static final float[] pizza2_loc = {Pizza_X, Pizza_Y};
+	public static final double[] pizza1_loc = {15.0, 60.0};
+	public static final double[] pizza2_loc = {15.0, -60.0};
 	
-	public static final float[] red_road = {red_start_X, red_start_Y,red_direction_angle};
+	public static final double[] red_road = {210.0, 39.0,60};
 	
-	public static final float[] green_road = {green_start_X, green_start_Y,green_direction_angle};
+	public static final double[] green_road = {210.0, -40.0,0};
 	
-	public static final float[] blue_road = {blue_start_X, blue_start_Y,blue_direction_angle};
+	public static final double[] blue_road = {210.0, 0,-62.3};
 	
-	public static float[] goal_pizza;
-	public static float[] goal_road;
-	public static float goal_road_dir;
+	public static double[] goal_pizza;
+	public static double[] goal_road;
+	public static double goal_road_dir;
 
 	
 	// Mission stage keep track of what part of the misson we are on
@@ -90,11 +90,11 @@ public class pizza_bot {
 
 	    	if (mission_stage == 2){
 		    	if (Button.ENTER.isDown()) {
-		    		robot.move_to_Point_PID_SONIC(0,30, 150);
-				    robot.spotTurn_gyro(0);
+		    		//robot.move_to_Point_PID_SONIC(0,30, 150);
+				    //robot.spotTurn_gyro(0);
 				    
-				    // robot.move_to_Point_PID_SONIC(goal_road[0], goal_road[1], 150);
-				    // robot.spotTurn_gyro(goal_road_dir);
+				    robot.move_to_Point_PID_SONIC(goal_road[0], goal_road[1], 150);
+				    robot.spotTurn_gyro((float)goal_road_dir);
 			    }
 	    	}
 	    	
@@ -109,14 +109,16 @@ public class pizza_bot {
 	    		
 	    		// Drive forward to avoid the debris at the start
 	    		robot.forward(10, 150);
-	    	}
-	    	
-	    	if (mission_stage == 4){
+	    		
 	    		while (count_house() < house_desired){
 	    			robot.forward(2, 150);
 	    		}
 	    		
 	    		drop_pizza();
+	    	}
+	    	
+	    	if (mission_stage == 4){
+	    		robot.move_to_Point_PID_SONIC(0, 0, 200);
 	    	}
 	    	
 	    	}
@@ -233,6 +235,7 @@ public class pizza_bot {
 
 		Motor.D.rotateTo(-25);
 		Delay.msDelay(2000);
+		robot.forward(3, 100);
 		Motor.D.rotateTo(90);
 		
 	}
