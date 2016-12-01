@@ -41,7 +41,7 @@ public class drive_control {
 
 	public float[] gyro_sample;
 	public float[] sonicsample;
-	
+
 
 
 	// Global statements
@@ -86,25 +86,21 @@ public class drive_control {
 		double distance = 0;
 		spotTurn_gyro((int)angle);
 		double error = (double)(theta() - angle);
-		
-		// Integral and derivative terms
-		double integral = 0;
-		double derivative = 0;
 
 		// proportional constants
 		double kp = 0.8;
-		
+
 		System.out.println("(" + X + "," + Y + ")");
-		
+
 		// x and y error term
 		double x_err = X - x;
 		double y_err = Y - y;
-		
-		
+
+
 		// While loop for constant
 		while (true){
 			if (Math.abs(x_err) < 3 || Math.abs(y_err) < 3) break;
-			
+
 			System.out.println("(" + X + "," + Y + ")");
 			if (Button.ESCAPE.isDown()) {
 		    	Motor.A.flt();
@@ -112,7 +108,7 @@ public class drive_control {
 		    	Delay.msDelay(1000);
 		       	if (Button.ESCAPE.isDown()){break;}
 		    	}
-			
+
 			int atacho = Motor.A.getTachoCount();
 			int btacho = Motor.B.getTachoCount();
 
@@ -142,44 +138,44 @@ public class drive_control {
 
 			// Get tacho counts
 			distance = ((Motor.A.getTachoCount() - atacho) + (Motor.B.getTachoCount() - btacho))*0.5/Rwheel_amt_per_cm;
-			
+
 			//System.out.println(distance);
 			// Update position traveled
 			X += distance*Math.sin(Math.toRadians(angle));
 			Y += distance*Math.cos(Math.toRadians(angle));
 		}
 	}
-	
+
 	public void reverse_to_Point_PID(double x, double y, int speed){
 		// Theta in radians
 		set_speed(speed, speed);
 
 		// Set the current heading as the desired orientation, reverse
 		double angle = (desired_Orientation(x,y)+pi)%(2*pi) ;
-		
+
 		System.out.println("ORIGINAL ANGLE " + angle);
 		double distance = 0;
 		spotTurn_gyro((int)angle);
 		double error = (double)((theta()+pi)%(2*pi) - angle);
-		
+
 		// Integral and derivative terms
 		double integral = 0;
 		double derivative = 0;
 
 		// proportional constants
 		double kp = 0.8;
-		
+
 		System.out.println("(" + X + "," + Y + ")");
-		
+
 		// x and y error term
 		double x_err = X - x;
 		double y_err = Y - y;
-		
-		
+
+
 		// While loop for constant
 		while (true){
 			if (Math.abs(x_err) < 3 || Math.abs(y_err) < 3) break;
-			
+
 			System.out.println("(" + X + "," + Y + ")");
 			if (Button.ESCAPE.isDown()) {
 		    	Motor.A.flt();
@@ -187,10 +183,10 @@ public class drive_control {
 		    	Delay.msDelay(1000);
 		       	if (Button.ESCAPE.isDown()){break;}
 		    	}
-			
+
 			int atacho = Motor.A.getTachoCount();
 			int btacho = Motor.B.getTachoCount();
-			
+
 			error = (double)(theta() - angle);
 			double diff = kp * error;
 
@@ -206,7 +202,7 @@ public class drive_control {
 
 			// Get tacho counts
 			distance = ((Motor.A.getTachoCount() - atacho) + (Motor.B.getTachoCount() - btacho))*0.5/Rwheel_amt_per_cm;
-			
+
 			//System.out.println(distance);
 			// Update position traveled
 			X += distance*Math.sin(Math.toRadians(angle));
@@ -221,7 +217,7 @@ public class drive_control {
 		spotTurn_gyro((int)(theta() + 90));
 		forward(20, 150);
 		System.out.println("(" + (int)X + ", " + (int)Y +")");
-		
+
 	}
 
 
@@ -233,7 +229,7 @@ public class drive_control {
 		Motor.C.rotateTo(90);
 		// double prev_ping = avg_ping();
 		double wall_sep = avg_ping();
-		
+
 		// Theta in radians
 		set_speed(speed, speed);
 
@@ -245,14 +241,14 @@ public class drive_control {
 
 		// proportional constants
 		double kp = 0.8;
-		
+
 		System.out.println("(" + X + "," + Y + ")");
-		
-		
+
+
 		// While loop for constant
 		while (true){
 			if (Math.abs(avg_ping() - wall_sep) > 3){break;}
-			
+
 			System.out.println("(" + X + "," + Y + ")");
 			if (Button.ESCAPE.isDown()) {
 		    	Motor.A.flt();
@@ -260,7 +256,7 @@ public class drive_control {
 		    	Delay.msDelay(1000);
 		       	if (Button.ESCAPE.isDown()){break;}
 		    	}
-			
+
 			int atacho = Motor.A.getTachoCount();
 			int btacho = Motor.B.getTachoCount();
 
@@ -279,54 +275,46 @@ public class drive_control {
 
 			// Get tacho counts
 			distance = ((Motor.A.getTachoCount() - atacho) + (Motor.B.getTachoCount() - btacho))*0.5/Rwheel_amt_per_cm;
-			
+
 			//System.out.println(distance);
 			// Update position traveled
 			float angle = theta();
 			X += distance*Math.sin(Math.toRadians(angle));
 			Y += distance*Math.cos(Math.toRadians(angle));
 		}
-		
+
 	}
-	
+
 	public double desired_Orientation (double x, double y){
 		// Set angle taking into account boundary cases
 
-		double angle = Math.toDegrees(Math.atan((y-Y)/(x-X)));
+		double angle = Math.toDegrees(Math.atan(((x-X)/(y-Y)));
 
-		// straight up and down y axis
-		if (x-X==0){
-			   if (y-Y >=0){
-			    return angle = 0;
-			   }
-			   else{
-			    return angle = -180;
-			   }
-
-	  // straigh up and down x axis
-		} else if (y-Y==0) {
-			   if (x-X >=0){
-				    return angle = 90;
-				   }
-				   else{
-				    return angle = -90;
+		// straight up and down x axis
+		if (y-Y==0){
+			if (x<X){
+			  return angle = 90;
 			}
-
-		// angles behind robot
-		} else {
-			if ((y-Y)<0){
-				if ((x-X)<0){
-					//return angle = -90 - angle;
-					return angle;
-				}
-				else
-					//return angle =  90 - angle;
-					return angle;
+			else if (x=X){
+				return angle = theta();
 			}
-			else {
-				return angle;
+			else{
+				return angle = -90;
 			}
 		}
+		// straight up and down x axis
+		if (y-Y < 0) {
+			if (x-X < 0){
+				return angle = angle - 180;
+			}
+			else if (x-X > 0) {
+				return angle = angle + 180;
+			}
+			else {
+				return angle = -180;
+			}
+		}
+		return angle;
 	}
 
 	public void forward(double distance, int speed){
