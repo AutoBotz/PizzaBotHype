@@ -141,4 +141,13 @@ public class user_interface {
 			}
 		}
 	}
+
+	public int[] obtain_selection(){
+		
+		int[] selection = new int[2];
+		selection[0] = 0;
+		selection[1] = 0;
+		
+		return selection;
+	}
 }

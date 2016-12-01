@@ -24,6 +24,24 @@ public class pizza_bot {
 	public static int house_count = 0;
 	public static int house_edge = 0;
 	
+	// Constants
+	// Record the absolute positions of various destinations here to call upon
+	
+	
+	public static final float[] pizza1_loc = {Pizza_X, Pizza_Y};
+	public static final float[] pizza2_loc = {Pizza_X, Pizza_Y};
+	
+	public static final float[] red_road = {red_start_X, red_start_Y,red_direction_angle};
+	
+	public static final float[] green_road = {green_start_X, green_start_Y,green_direction_angle};
+	
+	public static final float[] blue_road = {blue_start_X, blue_start_Y,blue_direction_angle};
+	
+	public static float[] goal_pizza;
+	public static float[] goal_road;
+	public static float goal_road_dir;
+
+	
 	// Mission stage keep track of what part of the misson we are on
 	// So the while loop can be operated at high frequency and we can record location or whatever
 	// Mission stages:
@@ -38,7 +56,7 @@ public class pizza_bot {
 	public static int house_desired = 3;
 	public static int side_of_road = 0;
 	public static int pizza_option = 0;
-	
+
 
 	public static void main(String[] args) {
 		UI.println("START!");
@@ -46,6 +64,7 @@ public class pizza_bot {
 		UI.println("angle " + robot.theta());
 		robot.sonic_init(2);
 		
+		select_goal();
 		
 
 		robot.init_pos(0.0, 0.0);
@@ -101,6 +120,48 @@ public class pizza_bot {
 	}
 
 
+	public static void select_goal(){
+		/**
+		 * This function sets the goal variables depending on input from the operator
+		 * The selection will be returned in a 2 in array from function UI.obtain_selection();
+		 * 
+		 * obtain selection must return 2 in array with following rules
+		 * 
+		 * [1,x] select pizza 1
+		 * [2,x] select pizza 2
+		 * 
+		 * [x,1] select red road
+		 * [x,2] select blue road
+		 * [x,3] select green road
+		 *  
+		 */
+		int[] goal = UI.obtain_selection();
+		
+		if (goal[0] == 1){
+			goal_pizza = pizza1_loc;
+		}else if(goal[0] == 2){
+			goal_pizza = pizza2_loc;
+		} else {
+			UI.println("Pizza Selection Error");
+		}
+	
+		if (goal[1] == 1){
+			goal_road[0] = red_road[0];
+			goal_road[1] = red_road[1];
+			goal_road_dir = red_road[2];
+		}else if(goal[1] == 2){
+			goal_road[0] = blue_road[0];
+			goal_road[1] = blue_road[1];
+			goal_road_dir = blue_road[2];
+		}else if(goal[1] == 3){
+			goal_road[0] = green_road[0];
+			goal_road[1] = green_road[1];
+			goal_road_dir = green_road[2];
+		} else {
+			UI.println("Road Selection Error");
+		}
+		
+	}
 	
 
 	public static int obstacle_encounter(float[] distance_array){

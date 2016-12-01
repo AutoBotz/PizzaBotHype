@@ -41,6 +41,7 @@ public class drive_control {
 
 	public float[] gyro_sample;
 	public float[] sonicsample;
+	
 
 
 	// Global statements
