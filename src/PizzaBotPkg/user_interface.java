@@ -1,17 +1,12 @@
 package PizzaBotPkg;
-import lejos.utility.Stopwatch;
 import lejos.hardware.Button;
 import lejos.hardware.lcd.LCD;
-import lejos.hardware.motor.Motor;
-import lejos.hardware.port.SensorPort;
-import lejos.hardware.sensor.EV3ColorSensor;
-import lejos.hardware.sensor.EV3GyroSensor;
 import lejos.utility.Delay;
 
 //import statements
 
 /**
-* @author      Andrej Janda, Ethan Waldie, Michael Ding
+* @author      Andrej Janda, Ethan Waldie, Michael Ding, Yunsung Oh
 * @version     0.1
 * @since       0.0
 */
@@ -30,14 +25,16 @@ public class user_interface {
 		System.out.print(x);
 	}
 
-	public int input_pizza(){
+	public int[] obtain_selection(){
+		int[] selection = {1,1,1};
 		int pizza_option = 1;
 		System.out.println("Pizza option is " + pizza_option);
 		System.out.println("1 for left side and 2 for right side");
-		while (true) {
+		int stage = 1;
+		while (stage == 1) {
 			if (Button.ENTER.isDown()) {
 				Delay.msDelay(100);
-				return pizza_option;
+				stage = 2;
 			} else if (Button.UP.isDown()) {
 				Delay.msDelay(50);
 				if (pizza_option == 1) {
@@ -56,16 +53,15 @@ public class user_interface {
 				System.out.println("Pizza option is " + pizza_option);
 			}
 		}
-	}
-
-	public int input_oval(){
+		selection[1] = pizza_option;
+		
 		int oval_desired = 1;
 		System.out.println("Oval option is " + oval_desired);
 		System.out.println("1 for Red, 2 for Blue, and 3 for Green");
-		while (true) {
+		while (stage == 2) {
 			if (Button.ENTER.isDown()) {
 				Delay.msDelay(100);
-				return oval_desired;
+				stage = 3;
 			} else if (Button.UP.isDown()) {
 				Delay.msDelay(50);
 				if (oval_desired == 3) {
@@ -84,47 +80,19 @@ public class user_interface {
 				System.out.println("Oval option is " + oval_desired);
 			}
 		}
-	}
-
-	public int input_roadside(){
-		int side_of_road = 1;
-		System.out.println("Road side option is " + side_of_road);
-		System.out.println("1 for left side and 2 for right side");
-		while (true) {
-			if (Button.ENTER.isDown()) {
-				Delay.msDelay(100);
-				return side_of_road;
-			} else if (Button.UP.isDown()) {
-				Delay.msDelay(50);
-				if (side_of_road == 1) {
-					side_of_road = 2;
-				} else {
-					side_of_road = 1;
-				}
-				System.out.println("Road side option is " + side_of_road);
-			} else if (Button.DOWN.isDown()) {
-				Delay.msDelay(50);
-				if (side_of_road == 1) {
-					side_of_road = 2;
-				} else {
-					side_of_road = 1;
-				}
-				System.out.println("Road side option is " + side_of_road);
-			}
-		}
-	}
-
-	public int input_house(){
+		selection[2] = oval_desired;
+		
 		int house_desired = 1;
 		System.out.println("House option is " + house_desired);
-		System.out.println("1 for the first, 2 for the middle, and 3 for the last");
-		while (true) {
+		System.out.println("1 for left first, 2 for left second, and 3 for left third");
+		System.out.println("4 for right first, 5 for right second, and 6 for right third");
+		while (stage == 3) {
 			if (Button.ENTER.isDown()) {
 				Delay.msDelay(100);
-				return house_desired;
+				stage = 4;
 			} else if (Button.UP.isDown()) {
 				Delay.msDelay(50);
-				if (house_desired == 3) {
+				if (house_desired == 6) {
 					house_desired = 1;
 				} else {
 					house_desired += 1;
@@ -133,21 +101,16 @@ public class user_interface {
 			} else if (Button.DOWN.isDown()) {
 				Delay.msDelay(50);
 				if (house_desired == 1) {
-					house_desired = 3;
+					house_desired = 6;
 				} else {
 					house_desired -= 1;
 				}
 				System.out.println("House option is " + house_desired);
 			}
 		}
-	}
-
-	public int[] obtain_selection(){
-		
-		int[] selection = new int[2];
-		selection[0] = 0;
-		selection[1] = 0;
+		selection[3] = house_desired;
 		
 		return selection;
 	}
+
 }
