@@ -27,9 +27,12 @@ public class pizza_bot {
 	// Constants
 	// Record the absolute positions of various destinations here to call upon
 	
+
+	//public static final double[] pizza1_loc = {15.0, 60.0};
+	//public static final double[] pizza2_loc = {15.0, -60.0};
 	
-	public static final double[] pizza1_loc = {15.0, 60.0};
-	public static final double[] pizza2_loc = {15.0, -60.0};
+	public static final double[] pizza1_loc = {13.0, 58.0};
+	public static final double[] pizza2_loc = {13.0, -58.0};
 	
 	public static final double[] red_road = {210.0, 39.0,60};
 	
@@ -37,9 +40,9 @@ public class pizza_bot {
 	
 	public static final double[] blue_road = {210.0, 0,-62.3};
 	
-	public static double[] goal_pizza;
-	public static double[] goal_road;
-	public static double goal_road_dir;
+	public static double[] goal_pizza = new double[2];
+	public static double[] goal_road = new double[2];
+	public static double goal_road_dir = 0.0;
 
 	
 	// Mission stage keep track of what part of the misson we are on
@@ -49,7 +52,7 @@ public class pizza_bot {
 	//       0              1                 2                 3                  4  
 	// Initialization    Take Pizza       Find Street        Find House         Return
 	
-	public static int mission_stage = 2;
+	public static int mission_stage = 1;
 
 
 	public static int oval_desired = 0;
@@ -140,7 +143,8 @@ public class pizza_bot {
 		 * [x,3] select green road
 		 *  
 		 */
-		int[] goal = UI.obtain_selection();
+		// int[] goal = UI.obtain_selection();
+		int[] goal = {1,2};
 		
 		if (goal[0] == 1){
 			goal_pizza = pizza1_loc;
@@ -221,9 +225,12 @@ public class pizza_bot {
 
 	public static void pickup_pizza(){
 		Motor.D.rotateTo(-5);
-		robot.reverse_to_Point_PID(goal_pizza[0], goal_pizza[1],100);
-		Motor.D.rotateTo(90);
-		robot.forward(10, 100);
+		robot.forward(15, 100);
+		robot.spotTurn_gyro(90);
+		robot.forward(-60, 100);
+		//robot.reverse_to_Point_PID(goal_pizza[0], goal_pizza[1],100);
+		Motor.D.rotateTo(0);
+		robot.forward(15, 100);
 	}
 	
 	public static void drop_pizza(){
