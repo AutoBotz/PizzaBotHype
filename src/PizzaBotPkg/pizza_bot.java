@@ -46,8 +46,8 @@ public class pizza_bot {
 	// So the while loop can be operated at high frequency and we can record location or whatever
 	// Mission stages:
 	//
-	//       0              1                 2                 3                  4                5
-	// Initialization    Take Pizza     Obstacle Avoid       Find Street        Find House         Return
+	//       0              1                 2                 3                  4  
+	// Initialization    Take Pizza       Find Street        Find House         Return
 	
 	public static int mission_stage = 2;
 
@@ -92,6 +92,9 @@ public class pizza_bot {
 		    	if (Button.ENTER.isDown()) {
 		    		robot.move_to_Point_PID_SONIC(0,30, 150);
 				    robot.spotTurn_gyro(0);
+				    
+				    // robot.move_to_Point_PID_SONIC(goal_road[0], goal_road[1], 150);
+				    // robot.spotTurn_gyro(goal_road_dir);
 			    }
 	    	}
 	    	
@@ -215,17 +218,10 @@ public class pizza_bot {
 	}
 
 	public static void pickup_pizza(){
-		robot.forward(1.1, 150);
-		if (pizza_option == 1){
-			robot.spotTurn(90, 150);
-			
-		} else if (pizza_option == 2){
-			robot.spotTurn(270, 150);
-		}
-
-		Motor.D.rotateTo(-10);
-		robot.forward(-5,150);
+		Motor.D.rotateTo(-5);
+		robot.reverse_to_Point_PID(goal_pizza[0], goal_pizza[1],100);
 		Motor.D.rotateTo(90);
+		robot.forward(10, 100);
 	}
 	
 	public static void drop_pizza(){

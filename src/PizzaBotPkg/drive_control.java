@@ -76,7 +76,7 @@ public class drive_control {
 		Y = y_init;
 	}
 
-	public void move_to_Point_PID_SONIC(int x, int y, int speed){
+	public void move_to_Point_PID_SONIC(double x, double y, int speed){
 		// Theta in radians
 		set_speed(speed, speed);
 
@@ -139,6 +139,70 @@ public class drive_control {
 			set_speed((int)(speed + diff), (int)(speed - diff));
 			Motor.A.forward();
 			Motor.B.forward();
+
+			// Get tacho counts
+			distance = ((Motor.A.getTachoCount() - atacho) + (Motor.B.getTachoCount() - btacho))*0.5/Rwheel_amt_per_cm;
+			
+			//System.out.println(distance);
+			// Update position traveled
+			X += distance*Math.sin(Math.toRadians(angle));
+			Y += distance*Math.cos(Math.toRadians(angle));
+		}
+	}
+	
+	public void reverse_to_Point_PID(double x, double y, int speed){
+		// Theta in radians
+		set_speed(speed, speed);
+
+		// Set the current heading as the desired orientation, reverse
+		double angle = (desired_Orientation(x,y)+pi)%(2*pi) ;
+		
+		System.out.println("ORIGINAL ANGLE " + angle);
+		double distance = 0;
+		spotTurn_gyro((int)angle);
+		double error = (double)((theta()+pi)%(2*pi) - angle);
+		
+		// Integral and derivative terms
+		double integral = 0;
+		double derivative = 0;
+
+		// proportional constants
+		double kp = 0.8;
+		
+		System.out.println("(" + X + "," + Y + ")");
+		
+		// x and y error term
+		double x_err = X - x;
+		double y_err = Y - y;
+		
+		
+		// While loop for constant
+		while (true){
+			if (Math.abs(x_err) < 3 || Math.abs(y_err) < 3) break;
+			
+			System.out.println("(" + X + "," + Y + ")");
+			if (Button.ESCAPE.isDown()) {
+		    	Motor.A.flt();
+		    	Motor.B.flt();
+		    	Delay.msDelay(1000);
+		       	if (Button.ESCAPE.isDown()){break;}
+		    	}
+			
+			int atacho = Motor.A.getTachoCount();
+			int btacho = Motor.B.getTachoCount();
+			
+			error = (double)(theta() - angle);
+			double diff = kp * error;
+
+			if (diff > speed ){
+				diff = speed;
+			}
+			//System.out.println(diff);
+
+			// Update based on PID
+			set_speed((int)(speed + diff), (int)(speed - diff));
+			Motor.A.backward();
+			Motor.B.backward();
 
 			// Get tacho counts
 			distance = ((Motor.A.getTachoCount() - atacho) + (Motor.B.getTachoCount() - btacho))*0.5/Rwheel_amt_per_cm;
@@ -225,7 +289,7 @@ public class drive_control {
 		
 	}
 	
-	public double desired_Orientation (int x, int y){
+	public double desired_Orientation (double x, double y){
 		// Set angle taking into account boundary cases
 
 		double angle = Math.toDegrees(Math.atan((y-Y)/(x-X)));
