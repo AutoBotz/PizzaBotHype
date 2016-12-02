@@ -29,6 +29,10 @@ public class drive_control {
 	public double Rwheel_distance_full_rev = Float.NaN;
 	public double Rwheel_center = Float.NaN;
 
+	public static float house_distance = 10; // WE NEED TO MEASURE THIS
+	public static int house_count = 0;
+	public static int house_edge = 0;
+
 	public static double pi = Math.PI;
 
 	public double X = 0.0;
@@ -62,8 +66,8 @@ public class drive_control {
 		 * @param wheel_width The width of the wheels
 		 */
 
-		Lwheel_distance_full_rev = (float) pi * (left_diameter/2) * (left_diameter/2);
-		Rwheel_distance_full_rev = (float) pi * (right_diameter/2) * (right_diameter/2);
+		Lwheel_distance_full_rev = (double) pi * (left_diameter/2) * (left_diameter/2);
+		Rwheel_distance_full_rev = (double) pi * (right_diameter/2) * (right_diameter/2);
 
 		Lwheel_amt_per_cm = 360/Lwheel_distance_full_rev;
 		Rwheel_amt_per_cm = 360/Rwheel_distance_full_rev;
@@ -91,6 +95,8 @@ public class drive_control {
 		double kp = 0.8;
 
 		System.out.println("(" + X + "," + Y + ")");
+		double atacho = Motor.A.getTachoCount();
+		double btacho = Motor.B.getTachoCount();
 
 
 
@@ -106,13 +112,11 @@ public class drive_control {
 		       	if (Button.ESCAPE.isDown()){break;}
 		    	}
 
-			int atacho = Motor.A.getTachoCount();
-			int btacho = Motor.B.getTachoCount();
 
 			// If there is an obstacle, call avoidance routine
-			if (avg_ping() < 5){
-				object_avoid();
-				// object_avoid_follow(speed)
+			if (avg_ping() < 10){
+				//object_avoid();
+				object_avoid_follow(speed);
 				angle = desired_Orientation(x,y);
 				spotTurn_gyro((int)angle);
 				System.out.println("NEW ANGLE " + angle);
@@ -134,13 +138,90 @@ public class drive_control {
 			Motor.B.forward();
 
 			// Get tacho counts
-			distance = ((Motor.A.getTachoCount() - atacho) + (Motor.B.getTachoCount() - btacho))*0.5/Rwheel_amt_per_cm;
-
+			distance = ((Motor.A.getTachoCount() - atacho) + (Motor.B.getTachoCount() - btacho))*0.35/Rwheel_amt_per_cm;
+			atacho = Motor.A.getTachoCount();
+			btacho = Motor.B.getTachoCount();
+			System.out.println(distance);
+			
 			//System.out.println(distance);
 			// Update position traveled
 			X += distance*Math.sin(Math.toRadians(angle));
 			Y += distance*Math.cos(Math.toRadians(angle));
 		}
+		stop();
+	}
+	public void move_to_house(double x, double y, int speed, int house_num){
+		// Theta in radians
+		set_speed(speed, speed);
+
+		// Set the current heading as the desired orientation
+		double angle = desired_Orientation(x,y);
+		System.out.println("ORIGINAL ANGLE " + angle);
+		double distance = 0;
+		spotTurn_gyro((int)angle);
+		double error = (double)(theta() - angle);
+
+		// proportional constants
+		double kp = 0.8;
+
+		System.out.println("(" + X + "," + Y + ")");
+		double atacho = Motor.A.getTachoCount();
+		double btacho = Motor.B.getTachoCount();
+
+
+
+		// While loop for constant
+		while (true){
+			if (Math.abs(X - x) < 3 && Math.abs(Y - y) < 3) break;
+			
+			System.out.println("(" + X + "," + Y + ")");
+			if (Button.ESCAPE.isDown()) {
+		    	Motor.A.flt();
+		    	Motor.B.flt();
+		    	Delay.msDelay(1000);
+		       	if (Button.ESCAPE.isDown()){break;}
+		    	}
+
+			System.out.println(count_house());
+			// If there is an obstacle, call avoidance routine
+			/*if (count_house() > house_num%5){
+				//object_avoid();
+				//drop_pizza(house_num);
+				
+				stop();
+				distance = ((Motor.A.getTachoCount() - atacho) + (Motor.B.getTachoCount() - btacho))*0.35/Rwheel_amt_per_cm;
+				System.out.println(distance);
+				
+				X += distance*Math.sin(Math.toRadians(angle));
+				Y += distance*Math.cos(Math.toRadians(angle));
+				break;
+			}*/
+
+			error = (double)(theta() - angle);
+			double diff = kp * error;
+
+			if (diff > speed ){
+				diff = speed;
+			}
+			//System.out.println(diff);
+
+			// Update based on PID
+			set_speed((int)(speed + diff), (int)(speed - diff));
+			Motor.A.forward();
+			Motor.B.forward();
+
+			// Get tacho counts
+			distance = ((Motor.A.getTachoCount() - atacho) + (Motor.B.getTachoCount() - btacho))*0.35/Rwheel_amt_per_cm;
+			atacho = Motor.A.getTachoCount();
+			btacho = Motor.B.getTachoCount();
+			System.out.println(distance);
+			
+			//System.out.println(distance);
+			// Update position traveled
+			X += distance*Math.sin(Math.toRadians(angle));
+			Y += distance*Math.cos(Math.toRadians(angle));
+		}
+		stop();
 	}
 
 	public void reverse_to_Point_PID(double x, double y, int speed){
@@ -218,7 +299,7 @@ public class drive_control {
 		// traveling 20 cm
 		System.out.println("(" + (int)X + ", " + (int)Y +")");
 		spotTurn_gyro((int)(theta() + 90));
-		Motor.C.rotateTo(90);
+		Motor.C.rotateTo(-90);
 		// double prev_ping = avg_ping();
 		double wall_sep = avg_ping();
 
@@ -232,14 +313,16 @@ public class drive_control {
 		double distance = 0;
 
 		// proportional constants
-		double kp = 0.8;
+		double kp = 10;
 
 		System.out.println("(" + X + "," + Y + ")");
 
+		double atacho = Motor.A.getTachoCount();
+		double btacho = Motor.B.getTachoCount();
 
 		// While loop for constant
 		while (true){
-			if (Math.abs(avg_ping() - wall_sep) > 3){break;}
+			if (Math.abs(avg_ping() - wall_sep) > 10){break;}
 
 			System.out.println("(" + X + "," + Y + ")");
 			if (Button.ESCAPE.isDown()) {
@@ -248,9 +331,6 @@ public class drive_control {
 		    	Delay.msDelay(1000);
 		       	if (Button.ESCAPE.isDown()){break;}
 		    	}
-
-			int atacho = Motor.A.getTachoCount();
-			int btacho = Motor.B.getTachoCount();
 
 			error = (double)(avg_ping() - wall_sep);
 			double diff = kp * error;
@@ -266,30 +346,37 @@ public class drive_control {
 			Motor.B.forward();
 
 			// Get tacho counts
-			distance = ((Motor.A.getTachoCount() - atacho) + (Motor.B.getTachoCount() - btacho))*0.5/Rwheel_amt_per_cm;
-
+			distance = ((Motor.A.getTachoCount() - atacho) + (Motor.B.getTachoCount() - btacho))*0.37/Rwheel_amt_per_cm;
+			atacho = Motor.A.getTachoCount();
+			btacho = Motor.B.getTachoCount();
+			System.out.println(distance);
+			
 			//System.out.println(distance);
 			// Update position traveled
-			float angle = theta();
+			double angle = theta();
 			X += distance*Math.sin(Math.toRadians(angle));
 			Y += distance*Math.cos(Math.toRadians(angle));
 		}
 
-		this.forward(5,100);
+		stop();
+		this.forward(40,150);
+		this.spotTurn_gyro(theta()-90);
+		this.forward(40,150);
+		Motor.C.rotateTo(0);
 
 	}
 
 	public double desired_Orientation (double x, double y){
 		// Set angle taking into account boundary cases
 
-		double angle = Math.toDegrees(Math.atan(((x-X)/(y-Y)));
+		double angle = Math.toDegrees(Math.atan((x-X)/(y-Y)));
 
 		// straight up and down x axis
 		if (y-Y==0){
 			if (x<X){
 			  return angle = 90;
 			}
-			else if (x=X){
+			else if (x==X){
 				return angle = theta();
 			}
 			else{
@@ -559,4 +646,47 @@ public class drive_control {
 		}
 		return distance_array;
 	}
+
+	public int count_house(){
+		/**
+		 * This function returns the current house number we are at
+		 * 1, 2, 3 will be returned if we are in front of a house
+		 * 0 will be returned if we are not in front of a house
+		 *
+		 */
+		
+		if(this.avg_ping() > (100)){
+			// no house is in sight
+			if (house_edge == 1){
+				// The robot was at a house in the last iteration, not anymore
+				house_edge = 0;
+			}
+			
+			// return zero, no house
+			return 0;
+		} else {
+			// ultrasonic see object that is within distance of a house, so there is probably one
+			if (house_edge == 0){
+				// The robot didnt see a house in the last iteration, now there is house
+				house_count += 1;
+				house_edge = 1;
+			}
+			return house_count;
+		}
+	}
+
+	public void drop_pizza(int house){
+		if (house > 5){
+			spotTurn((int)(theta()+90), 150);
+		} else if (house <=5){
+			spotTurn((int)(theta()-90), 150);
+		}
+
+		Motor.D.rotateTo(-25);
+		Delay.msDelay(2000);
+		forward(3, 100);
+		Motor.D.rotateTo(90);
+		
+	}
+
 }

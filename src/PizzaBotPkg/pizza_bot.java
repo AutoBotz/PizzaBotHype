@@ -20,9 +20,6 @@ public class pizza_bot {
 	public static drive_control robot = new drive_control();
 	public static user_interface UI = new user_interface();
 	public static double pi = Math.PI;
-	public static float house_distance = 10; // WE NEED TO MEASURE THIS
-	public static int house_count = 0;
-	public static int house_edge = 0;
 	
 	// Constants
 	// Record the absolute positions of various destinations here to call upon
@@ -31,17 +28,17 @@ public class pizza_bot {
 	//public static final double[] pizza1_loc = {15.0, 60.0};
 	//public static final double[] pizza2_loc = {15.0, -60.0};
 	
-	public static final double[] pizza1_loc = {13.0, 58.0};
-	public static final double[] pizza2_loc = {13.0, -58.0};
+	//public static final double[] pizza1_loc = {13.0, 58.0};
+	//public static final double[] pizza2_loc = {13.0, -58.0};
 	
-	public static final double[] red_road = {210.0, 39.0,60};
+	public static final double[] red_road = {39.0,  210.0,   45.0,   345.0,    60};
 	
-	public static final double[] green_road = {210.0, -40.0,0};
+	public static final double[] green_road = {-40,   210.0,   -45.0,   345.0,    -62.3};
 	
-	public static final double[] blue_road = {210.0, 0,-62.3};
+	public static final double[] blue_road = {0,   210.0,    0,    360.0,    0};
 	
 	public static double[] goal_pizza = new double[2];
-	public static double[] goal_road = new double[2];
+	public static double[] goal_road = new double[4];
 	public static double goal_road_dir = 0.0;
 
 	
@@ -52,7 +49,7 @@ public class pizza_bot {
 	//       0              1                 2                 3                  4  
 	// Initialization    Take Pizza       Find Street        Find House         Return
 	
-	public static int mission_stage = 1;
+	public static int mission_stage = 3;
 
 
 	public static int oval_desired = 0;
@@ -72,6 +69,10 @@ public class pizza_bot {
 
 		robot.init_pos(0.0, 0.0);
 		robot.set_dims(5.5, 5.5, 12);
+		Motor.D.rotateTo(0);
+		
+		robot.X = green_road[0];
+		robot.Y = green_road[1];
 
 
 	    while(true){
@@ -93,31 +94,29 @@ public class pizza_bot {
 
 	    	if (mission_stage == 2){
 		    	if (Button.ENTER.isDown()) {
-		    		//robot.move_to_Point_PID_SONIC(0,30, 150);
+		    		robot.move_to_Point_PID_SONIC(0,200, 200);
 				    //robot.spotTurn_gyro(0);
 				    
-				    robot.move_to_Point_PID_SONIC(goal_road[0], goal_road[1], 150);
-				    robot.spotTurn_gyro((float)goal_road_dir);
+				    //robot.move_to_Point_PID_SONIC(goal_road[0], goal_road[1], 150);
+				    //	robot.spotTurn_gyro((float)goal_road_dir);
 			    }
 	    	}
 	    	
 	    	if (mission_stage == 3){
 	    		
 	    		// left or right side of the street, rotate ultrasonic to align
-	    		if (side_of_road == 1){
+	    		/*if (house_desired > 5){
 		    		Motor.C.rotateTo(-90);
-	    		} if (side_of_road == 2){
+	    		} else if (house_desired <= 5){
 		    		Motor.C.rotateTo(90);
-	    		}
+	    		}*/
 	    		
 	    		// Drive forward to avoid the debris at the start
-	    		robot.forward(10, 150);
+	    		//robot.forward(15, 150);
+	    		//System.out.println(""+robot.X+"  "+robot.Y+"  "+goal_road[2]+"  "+goal_road[3]);
+	    		//Delay.msDelay(2000);
+	    		robot.move_to_house(goal_road[2],goal_road[3],150,house_desired);
 	    		
-	    		while (count_house() < house_desired){
-	    			robot.forward(2, 150);
-	    		}
-	    		
-	    		drop_pizza();
 	    	}
 	    	
 	    	if (mission_stage == 4){
@@ -135,21 +134,28 @@ public class pizza_bot {
 		 * 
 		 * obtain selection must return 2 in array with following rules
 		 * 
-		 * [1,x] select pizza 1
-		 * [2,x] select pizza 2
+		 * [1,x,x] select pizza 1
+		 * [2,x,x] select pizza 2
 		 * 
-		 * [x,1] select red road
-		 * [x,2] select blue road
-		 * [x,3] select green road
+		 * [x,1,x] select red road
+		 * [x,2,x] select blue road
+		 * [x,3,x] select green road
+		 * 
+		 * [x,x,1] select left first
+		 * [x,x,2] select left second
+		 * [x,x,3] select left third
+		 * [x,x,6] select right first
+		 * [x,x,7] select right second
+		 * [x,x,8] select right third
 		 *  
 		 */
 		// int[] goal = UI.obtain_selection();
-		int[] goal = {1,2};
+		int[] goal = {1,3};
 		
 		if (goal[0] == 1){
-			goal_pizza = pizza1_loc;
+			//goal_pizza = pizza1_loc;
 		}else if(goal[0] == 2){
-			goal_pizza = pizza2_loc;
+			//goal_pizza = pizza2_loc;
 		} else {
 			UI.println("Pizza Selection Error");
 		}
@@ -157,15 +163,21 @@ public class pizza_bot {
 		if (goal[1] == 1){
 			goal_road[0] = red_road[0];
 			goal_road[1] = red_road[1];
-			goal_road_dir = red_road[2];
+			goal_road[2] = red_road[2];
+			goal_road[3] = red_road[3];
+			goal_road_dir = red_road[4];
 		}else if(goal[1] == 2){
 			goal_road[0] = blue_road[0];
 			goal_road[1] = blue_road[1];
-			goal_road_dir = blue_road[2];
+			goal_road[2] = blue_road[2];
+			goal_road[3] = blue_road[3];
+			goal_road_dir = blue_road[4];
 		}else if(goal[1] == 3){
 			goal_road[0] = green_road[0];
 			goal_road[1] = green_road[1];
-			goal_road_dir = green_road[2];
+			goal_road[2] = green_road[2];
+			goal_road[3] = green_road[3];
+			goal_road_dir = green_road[4];
 		} else {
 			UI.println("Road Selection Error");
 		}
@@ -195,55 +207,16 @@ public class pizza_bot {
 		return (int)(max_direction*22.5 - 90);
 	}
 
-	public static int count_house(){
-		/**
-		 * This function returns the current house number we are at
-		 * 1, 2, 3 will be returned if we are in front of a house
-		 * 0 will be returned if we are not in front of a house
-		 *
-		 */
-		
-		if(robot.avg_ping() > (house_distance + 3)){
-			// no house is in sight
-			if (house_edge == 1){
-				// The robot was at a house in the last iteration, not anymore
-				house_edge = 0;
-			}
-			
-			// return zero, no house
-			return 0;
-		} else {
-			// ultrasonic see object that is within distance of a house, so there is probably one
-			if (house_edge == 0){
-				// The robot didnt see a house in the last iteration, now there is house
-				house_count += 1;
-				house_edge = 1;
-			}
-			return house_count;
-		}
-	}
-
+	
 	public static void pickup_pizza(){
-		Motor.D.rotateTo(-5);
-		robot.forward(15, 100);
+		Motor.D.rotateTo(-10);
+		robot.forward(15.5, 100);
 		robot.spotTurn_gyro(90);
 		robot.forward(-60, 100);
 		//robot.reverse_to_Point_PID(goal_pizza[0], goal_pizza[1],100);
-		Motor.D.rotateTo(0);
+		Motor.D.rotateTo(90);
 		robot.forward(15, 100);
 	}
 	
-	public static void drop_pizza(){
-		if (side_of_road == 1){
-			robot.spotTurn(90, 150);
-		} else if (side_of_road == 2){
-			robot.spotTurn(270, 150);
-		}
-
-		Motor.D.rotateTo(-25);
-		Delay.msDelay(2000);
-		robot.forward(3, 100);
-		Motor.D.rotateTo(90);
-		
-	}
+	
 }
