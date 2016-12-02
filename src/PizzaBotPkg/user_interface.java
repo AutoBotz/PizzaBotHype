@@ -54,7 +54,7 @@ public class user_interface {
 			}
 		}
 		selection[1] = pizza_option;
-		
+
 		int oval_desired = 1;
 		System.out.println("Oval option is " + oval_desired);
 		System.out.println("1 for Red, 2 for Blue, and 3 for Green");
@@ -81,19 +81,21 @@ public class user_interface {
 			}
 		}
 		selection[2] = oval_desired;
-		
+
 		int house_desired = 1;
 		System.out.println("House option is " + house_desired);
 		System.out.println("1 for left first, 2 for left second, and 3 for left third");
-		System.out.println("4 for right first, 5 for right second, and 6 for right third");
+		System.out.println("6 for right first, 7 for right second, and 8 for right third");
 		while (stage == 3) {
 			if (Button.ENTER.isDown()) {
 				Delay.msDelay(100);
 				stage = 4;
 			} else if (Button.UP.isDown()) {
 				Delay.msDelay(50);
-				if (house_desired == 6) {
+				if (house_desired == 8) {
 					house_desired = 1;
+				} else if (house_desired == 3) {
+					house_desired = 6;
 				} else {
 					house_desired += 1;
 				}
@@ -101,7 +103,9 @@ public class user_interface {
 			} else if (Button.DOWN.isDown()) {
 				Delay.msDelay(50);
 				if (house_desired == 1) {
-					house_desired = 6;
+					house_desired = 8;
+				} else if (house_desired == 6) {
+					house_desired = 3;
 				} else {
 					house_desired -= 1;
 				}
@@ -109,7 +113,7 @@ public class user_interface {
 			}
 		}
 		selection[3] = house_desired;
-		
+
 		return selection;
 	}
 
