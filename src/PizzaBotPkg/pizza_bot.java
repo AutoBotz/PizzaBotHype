@@ -31,13 +31,13 @@ public class pizza_bot {
 	//public static final double[] pizza1_loc = {13.0, 58.0};
 	//public static final double[] pizza2_loc = {13.0, -58.0};
 	
-	public static final double[] red_road = {39.0,  210.0,   45.0,   345.0,    60};
+	public static final double[] red_road = {-39.0,  210.0,   -102.0,   345.0,    60};
 	
-	public static final double[] green_road = {-40,   210.0,   -45.0,   345.0,    -62.3};
+	public static final double[] green_road = {40,   210.0,   111.0,   345.0,    -62.3};
 	
 	public static final double[] blue_road = {0,   210.0,    0,    360.0,    0};
 	
-	public static double[] goal_pizza = new double[2];
+	public static int goal_pizza = 0;
 	public static double[] goal_road = new double[4];
 	public static double goal_road_dir = 0.0;
 
@@ -49,7 +49,7 @@ public class pizza_bot {
 	//       0              1                 2                 3                  4  
 	// Initialization    Take Pizza       Find Street        Find House         Return
 	
-	public static int mission_stage = 3;
+	public static int mission_stage = 1;
 
 
 	public static int oval_desired = 0;
@@ -60,19 +60,16 @@ public class pizza_bot {
 
 	public static void main(String[] args) {
 		UI.println("START!");
+		
+		select_goal();
 		robot.gyro_init(1);
 		UI.println("angle " + robot.theta());
 		robot.sonic_init(2);
 		
-		select_goal();
-		
 
-		robot.init_pos(0.0, 0.0);
+		///robot.init_pos(goal_road[0], goal_road[1]);
 		robot.set_dims(5.5, 5.5, 12);
 		Motor.D.rotateTo(0);
-		
-		robot.X = green_road[0];
-		robot.Y = green_road[1];
 
 
 	    while(true){
@@ -87,42 +84,63 @@ public class pizza_bot {
 
 	    	//UI.println(" "+ robot.avg_ping());
 	    	
-	    	if (mission_stage == 1){
-	    		pickup_pizza();
-	    		mission_stage = 2;
+	    	if (mission_stage == 5){
+	    		// test house counting algo
+	    		robot.set_speed(100, 100);
+	    		Motor.A.forward();
+	    		Motor.B.forward();
+	    		System.out.print(robot.count_house()+"    ");
+	    		System.out.println(robot.ping());
 	    	}
-
-	    	if (mission_stage == 2){
-		    	if (Button.ENTER.isDown()) {
-		    		robot.move_to_Point_PID_SONIC(0,200, 200);
-				    //robot.spotTurn_gyro(0);
-				    
-				    //robot.move_to_Point_PID_SONIC(goal_road[0], goal_road[1], 150);
-				    //	robot.spotTurn_gyro((float)goal_road_dir);
-			    }
+	    	
+	    	if (mission_stage == 4){
+	    		robot.move_to_Point_PID_SONIC(0, -10, 200);
+	    		robot.spotTurn_gyro(0);
+	    		UI.clear_screen();
+	    		UI.print("YOU ARE WINNER !!");
+	    		UI.print("YOU ARE WINNER !!");
+	    		UI.print("YOU ARE WINNER !!");
+	    		mission_stage = 1337;
 	    	}
 	    	
 	    	if (mission_stage == 3){
 	    		
 	    		// left or right side of the street, rotate ultrasonic to align
-	    		/*if (house_desired > 5){
+	    		if (house_desired > 5){
 		    		Motor.C.rotateTo(-90);
 	    		} else if (house_desired <= 5){
 		    		Motor.C.rotateTo(90);
-	    		}*/
+	    		}
+	    		Motor.C.flt();
 	    		
 	    		// Drive forward to avoid the debris at the start
 	    		//robot.forward(15, 150);
 	    		//System.out.println(""+robot.X+"  "+robot.Y+"  "+goal_road[2]+"  "+goal_road[3]);
 	    		//Delay.msDelay(2000);
-	    		robot.move_to_house(goal_road[2],goal_road[3],150,house_desired);
-	    		
+	    		robot.move_to_house(goal_road[2],goal_road[3],200,house_desired);
+	    		Motor.C.rotateTo(0);
+	    		robot.move_to_Point_PID_SONIC(goal_road[0], goal_road[1], 150);
+	    		// robot.move_to_Point_PID_SONIC(goal_road[0], goal_road[1], 200);
+	    		// break;
+	    		mission_stage = 4;
+	    	}
+	    	if (mission_stage == 2){
+	    		//robot.move_to_Point_PID_SONIC(0,200, 200);
+			    //robot.spotTurn_gyro(0);
+			    
+			   robot.move_to_Point_PID_SONIC(goal_road[0], goal_road[1], 150);
+	    	   //robot.move_to_Point_PID_SONIC(39, 210, 150);
+			   // 	robot.spotTurn_gyro((float)goal_road_dir);
+	    		mission_stage = 3;
+
 	    	}
 	    	
-	    	if (mission_stage == 4){
-	    		robot.move_to_Point_PID_SONIC(0, 0, 200);
+	    	if (mission_stage == 1){
+	    		pickup_pizza();
+	    		System.out.println("(" + robot.X + "," + robot.Y + ")");
+	    		mission_stage = 2;
 	    	}
-	    	
+
 	    	}
 	}
 
@@ -150,12 +168,13 @@ public class pizza_bot {
 		 *  
 		 */
 		// int[] goal = UI.obtain_selection();
-		int[] goal = {1,3};
+		// int[] goal = {1,1,3};
+		int[] goal = poll_input();
 		
 		if (goal[0] == 1){
-			//goal_pizza = pizza1_loc;
+			goal_pizza = 1;
 		}else if(goal[0] == 2){
-			//goal_pizza = pizza2_loc;
+			goal_pizza = 2;
 		} else {
 			UI.println("Pizza Selection Error");
 		}
@@ -179,44 +198,119 @@ public class pizza_bot {
 			goal_road[3] = green_road[3];
 			goal_road_dir = green_road[4];
 		} else {
-			UI.println("Road Selection Error");
+			UI.println("Street Selection Error");
+		}
+		
+		if (goal[2] != 0){
+			house_desired  = goal[2];
+		} else {
+			UI.println("House Selection Error");
 		}
 		
 	}
 	
 
-	public static int obstacle_encounter(float[] distance_array){
-		/**
-		 * This function accepts a array of 9 distance measurements and return the
-		 * direction to turn that will avoid obstacle
-		 *
-		 * @param distance_array array of 9 distance measurements
-		 */
-
-		// Distance of robot to object distance_array[4]
-
-		float curr_max = distance_array[4];
-		int max_direction = 4;
-
-		for(int i = 0; i < 9; i++){
-			if (distance_array[i] < 250 && distance_array[i] > curr_max){
-				curr_max = distance_array[i];
-				max_direction = i;
-			}
-		}
-		return (int)(max_direction*22.5 - 90);
-	}
-
 	
 	public static void pickup_pizza(){
-		Motor.D.rotateTo(-10);
-		robot.forward(15.5, 100);
-		robot.spotTurn_gyro(90);
-		robot.forward(-60, 100);
-		//robot.reverse_to_Point_PID(goal_pizza[0], goal_pizza[1],100);
-		Motor.D.rotateTo(90);
-		robot.forward(15, 100);
+		Motor.D.setSpeed(50);
+		if (goal_pizza == 1){
+			Motor.D.rotateTo(-10);
+			robot.forward(18 / 1.42857142857, 200);
+			robot.spotTurn_gyro(-90);
+			robot.forward(-60 / 1.42857142857, 200);
+			Motor.D.rotateTo(90);
+			robot.forward(10, 200);
+		}
+		
+		if (goal_pizza == 2){
+			Motor.D.rotateTo(-10);
+			robot.forward(18 / 1.42857142857, 200);
+			robot.spotTurn_gyro(90);
+			robot.forward(-60 / 1.42857142857, 2000);
+			Motor.D.rotateTo(90);
+			robot.forward(10, 200);
+		}
 	}
 	
-	
+	public static int[] poll_input(){
+		int pizza_sel = 0;
+		int road_sel = 0;
+		int house_sel = 0;
+		String[] pizza_array = {"unselected(0)", "left(1)", "right(2)"};
+		String[] road_array = {"unselected(0)", "red(1)", "blue(2)", "green(3)"};
+		String[] house_array ={"unselected(0)", "left_first(1)", "left_second(2)", "left_last(3)","4","5","right_first(6)", "right_second(7)", "right_last(8)"};
+		
+		
+		System.out.println("Please provide pizza selection");
+		System.out.println("Pizza: " + pizza_array[pizza_sel]);
+		while (true) {
+			if (Button.ENTER.isDown()) {
+				Delay.msDelay(100);
+				break;
+			} else if (Button.UP.isDown()) {
+				Delay.msDelay(100);
+				pizza_sel += 1;
+				pizza_sel = Math.abs(pizza_sel)%3;
+				System.out.println("Pizza: " + pizza_array[pizza_sel]);
+			} else if (Button.DOWN.isDown()) {
+				Delay.msDelay(100);
+				pizza_sel -= 1;
+				pizza_sel = Math.abs(pizza_sel)%3;
+				System.out.println("Pizza: " + pizza_array[pizza_sel]);
+			} else if (Button.LEFT.isDown()) {
+				Delay.msDelay(100);
+				pizza_sel = 0;
+				System.out.println("Pizza: " + pizza_array[pizza_sel]);
+			} 
+		}
+		
+		System.out.println("Please provide street selection");
+		System.out.println("Street: " + road_array[road_sel]);
+		while (true) {
+			if (Button.ENTER.isDown()) {
+				Delay.msDelay(100);
+				break;
+			} else if (Button.UP.isDown()) {
+				Delay.msDelay(100);
+				road_sel += 1;
+				road_sel = Math.abs(road_sel)%4;
+				System.out.println("Street: " + road_array[road_sel]);
+			} else if (Button.DOWN.isDown()) {
+				Delay.msDelay(100);
+				road_sel -= 1;
+				road_sel = Math.abs(road_sel)%4;
+				System.out.println("Street: " + road_array[road_sel]);
+			} else if (Button.LEFT.isDown()) {
+				Delay.msDelay(100);
+				road_sel = 0;
+				System.out.println("Street: " + road_array[road_sel]);
+			} 
+		}
+		
+		System.out.println("Please provide house selection");
+		System.out.println("House: " + house_array[house_sel]);
+		while (true) {
+			if (Button.ENTER.isDown()) {
+				Delay.msDelay(100);
+				break;
+			} else if (Button.UP.isDown()) {
+				Delay.msDelay(100);
+				house_sel += 1;
+				house_sel = Math.abs(house_sel)%8;
+				System.out.println("Street: " + house_array[house_sel]);
+			} else if (Button.DOWN.isDown()) {
+				Delay.msDelay(100);
+				house_sel -= 1;
+				house_sel = Math.abs(house_sel)%8;
+				System.out.println("Street: " + house_array[house_sel]);
+			} else if (Button.LEFT.isDown()) {
+				Delay.msDelay(100);
+				house_sel = 0;
+				System.out.println("Street: " + house_array[house_sel]);
+			} 
+		}
+		int [] return_val = {pizza_sel,road_sel,house_sel};
+		return return_val;
+		
+	}
 }

@@ -32,6 +32,7 @@ public class drive_control {
 	public static float house_distance = 10; // WE NEED TO MEASURE THIS
 	public static int house_count = 0;
 	public static int house_edge = 0;
+	public static int house_buffer_count = 0;
 
 	public static double pi = Math.PI;
 
@@ -114,7 +115,7 @@ public class drive_control {
 
 
 			// If there is an obstacle, call avoidance routine
-			if (avg_ping() < 10){
+			if (avg_ping() < 15){
 				//object_avoid();
 				object_avoid_follow(speed);
 				angle = desired_Orientation(x,y);
@@ -164,38 +165,44 @@ public class drive_control {
 		// proportional constants
 		double kp = 0.8;
 
-		System.out.println("(" + X + "," + Y + ")");
+		//System.out.println("(" + X + "," + Y + ")");
 		double atacho = Motor.A.getTachoCount();
 		double btacho = Motor.B.getTachoCount();
 
-
+		int loop_count = 0;
 
 		// While loop for constant
 		while (true){
 			if (Math.abs(X - x) < 3 && Math.abs(Y - y) < 3) break;
 			
-			System.out.println("(" + X + "," + Y + ")");
+			//System.out.println("(" + X + "," + Y + ")");
+
+			if (loop_count == 0){
+	    		System.out.print(count_house()+"    ");
+	    		System.out.println(ping());
+			}
+			loop_count += 1;
+			loop_count = loop_count %20;
+			
 			if (Button.ESCAPE.isDown()) {
 		    	Motor.A.flt();
 		    	Motor.B.flt();
 		    	Delay.msDelay(1000);
 		       	if (Button.ESCAPE.isDown()){break;}
 		    	}
-
-			System.out.println(count_house());
-			// If there is an obstacle, call avoidance routine
-			/*if (count_house() > house_num%5){
-				//object_avoid();
-				//drop_pizza(house_num);
-				
+			// If house is found, drop pizzza
+			if (count_house() == house_num){
 				stop();
 				distance = ((Motor.A.getTachoCount() - atacho) + (Motor.B.getTachoCount() - btacho))*0.35/Rwheel_amt_per_cm;
 				System.out.println(distance);
 				
 				X += distance*Math.sin(Math.toRadians(angle));
 				Y += distance*Math.cos(Math.toRadians(angle));
+				
+				drop_pizza(house_num);
+				
 				break;
-			}*/
+			}
 
 			error = (double)(theta() - angle);
 			double diff = kp * error;
@@ -359,9 +366,9 @@ public class drive_control {
 		}
 
 		stop();
-		this.forward(40,150);
+		this.forward(20,200);
 		this.spotTurn_gyro(theta()-90);
-		this.forward(40,150);
+		this.forward(20,200);
 		Motor.C.rotateTo(0);
 
 	}
@@ -422,8 +429,8 @@ public class drive_control {
 		double A_ang = Motor.A.getTachoCount();
 		double B_ang = Motor.B.getTachoCount();
 
-		A_ang = A_ang + distance * (Lwheel_amt_per_cm);
-		B_ang = B_ang + distance * (Rwheel_amt_per_cm);
+		A_ang = A_ang + distance * (Lwheel_amt_per_cm) * 1.42857142857;
+		B_ang = B_ang + distance * (Rwheel_amt_per_cm) * 1.42857142857;
 
 		Motor.A.rotateTo((int)(A_ang), true);
 		Motor.B.rotateTo((int)(B_ang));
@@ -654,37 +661,45 @@ public class drive_control {
 		 * 0 will be returned if we are not in front of a house
 		 *
 		 */
-		
-		if(this.avg_ping() > (100)){
+		if(this.avg_ping() < (100)){
 			// no house is in sight
+			if (house_buffer_count > 50){
+				if (house_edge == 0){
+				// The robot didnt see a house in the last iteration, now there is house
+				house_count += 1;
+				house_edge = 1;
+				}
+			}else{
+				// Ultrasonic sees object, but have not enough to trigger a detection
+				house_buffer_count += 1;
+				return 0;
+			}
+			
+			
+			return house_count;
+		} else {
+			
 			if (house_edge == 1){
 				// The robot was at a house in the last iteration, not anymore
 				house_edge = 0;
 			}
-			
+			house_buffer_count = 0;
 			// return zero, no house
 			return 0;
-		} else {
-			// ultrasonic see object that is within distance of a house, so there is probably one
-			if (house_edge == 0){
-				// The robot didnt see a house in the last iteration, now there is house
-				house_count += 1;
-				house_edge = 1;
-			}
-			return house_count;
 		}
 	}
 
 	public void drop_pizza(int house){
 		if (house > 5){
-			spotTurn((int)(theta()+90), 150);
+			spotTurn_gyro((theta()+90));
 		} else if (house <=5){
-			spotTurn((int)(theta()-90), 150);
+			spotTurn_gyro((theta()-90));
 		}
 
 		Motor.D.rotateTo(-25);
 		Delay.msDelay(2000);
-		forward(3, 100);
+		//forward(10,100);
+		//forward(10, 100);
 		Motor.D.rotateTo(90);
 		
 	}
